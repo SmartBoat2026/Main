@@ -591,38 +591,57 @@
         <span class="nav-label">STP Schedules</span>
     </a>
     <!-- Smart Wallet START -->
+
     <a href="#smartWalletDropdown"
-    class="nav-link {{ request()->routeIs('member.smartwallet*') ? 'active' : '' }}"
+    class="nav-link {{ request()->routeIs('member.smartwallet.*') ? 'active' : '' }}"
     data-bs-toggle="collapse"
-    aria-expanded="{{ request()->routeIs('member.smartwallet*') ? 'true' : 'false' }}" data-bs-title="Smart Wallet">
+    aria-expanded="{{ request()->routeIs('member.smartwallet.*') ? 'true' : 'false' }}">
+
         <i class="bi bi-wallet-fill"></i>
         <span class="nav-label">Smart Wallet</span>
         <i class="bi bi-chevron-down nav-arrow"></i>
     </a>
 
-    <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet*') ? 'show' : '' }}"
+    <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet.*') ? 'show' : '' }}"
         id="smartWalletDropdown">
+
+        <!-- USER TO USER -->
         <a href="#smartWalletUserToUserDropdown"
-        class="nav-link {{ request()->routeIs('member.smartwallet*') ? 'active' : '' }}"
-        data-bs-toggle="collapse"
-        aria-expanded="{{ request()->routeIs('member.smartwallet*') ? 'true' : 'false' }}" data-bs-title="Smart Wallet">
+        class="nav-link ps-4 {{ request()->routeIs('member.smartwallet.userToUser.*') ? 'active' : '' }}"
+        data-bs-toggle="collapse">
+
             <i class="bi bi-wallet2"></i>
             <span class="nav-label">USER TO USER TRANSFER</span>
             <i class="bi bi-chevron-down nav-arrow"></i>
         </a>
-        <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet*') ? 'show' : '' }}"
-        id="smartWalletUserToUserDropdown">
-            <a href="{{ route('member.smartwallet.sender') }}"
-            class="nav-link {{ request()->routeIs('member.smartwallet.sender') ? 'active' : '' }}">
+
+        <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet.userToUser.*') ? 'show' : '' }}"
+            id="smartWalletUserToUserDropdown">
+
+            <a href="{{ route('member.smartwallet.userToUser.sender') }}"
+            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.sender') ? 'active' : '' }}">
+                <i class="bi bi-person"></i>
                 <span class="nav-label">Sent</span>
             </a>
 
-            <a href="{{ route('member.smartwallet.receiver') }}"
-            class="nav-link {{ request()->routeIs('member.smartwallet.receiver') ? 'active' : '' }}">
+            <a href="{{ route('member.smartwallet.userToUser.receiver') }}"
+            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : '' }}">
+                <i class="bi bi-person"></i>
                 <span class="nav-label">Received</span>
             </a>
+
         </div>
+
+        <!-- PAYMENT SUBMISSION -->
+        <a href="{{ route('member.smartwallet.companyPayment.index') }}"
+        class="nav-link ps-4 {{ request()->routeIs('member.smartwallet.companyPayment.index') ? 'active' : '' }}">
+
+            <i class="bi bi-building"></i>
+            <span class="nav-label">Payment Submission</span>
+        </a>
+
     </div>
+
     <!-- Smart Wallet END -->
 
 </nav>

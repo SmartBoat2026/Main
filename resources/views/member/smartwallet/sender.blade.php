@@ -31,7 +31,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('member.smartwallet.store') }}" id="sendWalletBalanceRequestForm">
+                    <form method="POST" action="{{ route('member.smartwallet.userToUser.store') }}" id="sendWalletBalanceRequestForm">
                         @csrf
 
                         <div class="row g-3 mb-3">
@@ -168,7 +168,7 @@ $(document).ready(function () {
 
     function loadMembers() {
         $.ajax({
-            url: "{{ route('member.smartwallet.member') }}",
+            url: "{{ route('member.smartwallet.userToUser.members') }}",
             type: "GET",
             dataType: "json",
 
@@ -375,7 +375,7 @@ $(document).ready(function () {
     $('#sendWalletBalanceRequestHistoryTable').DataTable({
         processing: true,
         serverSide: false,
-        ajax: "{{ route('member.smartwallet.senderList') }}",
+        ajax: "{{ route('member.smartwallet.userToUser.senderList') }}",
         columns: [
             { data: 'checkbox', orderable:false, searchable:false },
             { data: 'DT_RowIndex' },

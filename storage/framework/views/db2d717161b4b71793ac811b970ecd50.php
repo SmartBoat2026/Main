@@ -29,7 +29,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <form method="POST" action="<?php echo e(route('member.smartwallet.store')); ?>" id="sendWalletBalanceRequestForm">
+                    <form method="POST" action="<?php echo e(route('member.smartwallet.userToUser.store')); ?>" id="sendWalletBalanceRequestForm">
                         <?php echo csrf_field(); ?>
 
                         <div class="row g-3 mb-3">
@@ -166,7 +166,7 @@ $(document).ready(function () {
 
     function loadMembers() {
         $.ajax({
-            url: "<?php echo e(route('member.smartwallet.member')); ?>",
+            url: "<?php echo e(route('member.smartwallet.userToUser.members')); ?>",
             type: "GET",
             dataType: "json",
 
@@ -373,7 +373,7 @@ $(document).ready(function () {
     $('#sendWalletBalanceRequestHistoryTable').DataTable({
         processing: true,
         serverSide: false,
-        ajax: "<?php echo e(route('member.smartwallet.senderList')); ?>",
+        ajax: "<?php echo e(route('member.smartwallet.userToUser.senderList')); ?>",
         columns: [
             { data: 'checkbox', orderable:false, searchable:false },
             { data: 'DT_RowIndex' },

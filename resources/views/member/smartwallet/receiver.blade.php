@@ -66,7 +66,7 @@ $(document).ready(function () {
     $('#receivedWalletBalanceHistoryTable').DataTable({
         processing: true,
         serverSide: false,
-        ajax: "{{ route('member.smartwallet.receiverList') }}",
+        ajax: "{{ route('member.smartwallet.userToUser.receiverList') }}",
         columns: [
             { data: 'checkbox', orderable:false, searchable:false },
             { data: 'DT_RowIndex' },

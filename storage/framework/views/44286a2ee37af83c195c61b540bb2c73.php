@@ -1,94 +1,187 @@
-@extends('member.layouts.app')
+<?php $__env->startSection('content'); ?>
 
-@section('content')
-
-    {{-- ===== PAGE HEADER ===== --}}
+    
     <div class="page-header">
         <div class="page-title">
-            <h1>Smart Wallet Sending List</h1>
-            <p>Record and track all sending wallet balances</p>
+            <h1>Company Payment Submission List</h1>
+            <p>Record and track all company payment submissions</p>
         </div>
         <div class="page-actions">
             <a href="javascript:void(0)" class="btn-primary-custom"
                data-bs-toggle="modal" data-bs-target="#addModal">
-                <i class="bi bi-plus-lg"></i> NEW SENDING WALLET BALANCE
+                <i class="bi bi-plus-lg"></i> NEW COMPANY PAYMENT SUBMISSION
             </a>
         </div>
     </div>
 
-    {{-- ===== SENDER REQUEST FORM MODAL ===== --}}
-    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    
+    <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
 
+                <!-- HEADER -->
                 <div class="modal-header" style="background:#1a3a6b;color:#fff;">
-                    <h5 class="modal-title" id="addModalLabel"
-                        style="font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;">
-                        <i class="bi bi-receipt me-2"></i>SENDING WALLET BALANCE  
+                    <h5 class="modal-title" style="font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;">
+                        <i class="bi bi-receipt me-2"></i> COMPANY PAYMENT SUBMISSION
                     </h5>
-                    <button type="button" class="btn-close btn-close-white"
-                            data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
 
+                <!-- BODY -->
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('member.smartwallet.store') }}" id="sendWalletBalanceRequestForm">
-                        @csrf
+                    <div class="row g-4">
 
-                        <div class="row g-3 mb-3">
+                        <!-- LEFT SIDE -->
+                        <div class="col-md-5">
 
-                            <div class="col-12 col-md-4" id="memberIdWrapper">
-                                <label class="form-label fw-label">Member ID</label>
-                                <div style="position:relative;">
-                                    <div class="input-group input-group-sm">
-                                        <input type="text" id="memberSearchInputForWalletRequestSend"
-                                               class="form-control form-control-sm"
-                                               placeholder="Search Name or Member ID"
-                                               autocomplete="off">
-                                        <span id="memberLookupSpinner" class="input-group-text"
-                                              style="display:none;background:#fff;border-left:0;padding:0 6px;">
-                                            <span class="spinner-border spinner-border-sm text-primary"
-                                                  style="width:.7rem;height:.7rem;"></span>
-                                        </span>
-                                    </div>
-                                    <input type="hidden" name="member_id" id="memberIdInputForWalletRequestSend">
-                                    <div id="memberDropdown" class="member-dropdown-list"></div>
+                            <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+
+                                <h6 style="font-weight:700;color:#1a3a6b;">
+                                    <i class="bi bi-qr-code"></i> Scan & Pay
+                                </h6>
+
+                                <p style="font-size:12px;color:#6c757d;">
+                                    Scan QR and complete payment
+                                </p>
+
+                                <div style="text-align:center;margin:15px 0;">
+                                    <img src="https://smartboatecosystem.com/Main/public/admin/assets/images/HindolMukherjeeQRCode.png"
+                                        style="width:180px;border-radius:10px;cursor:pointer;"
+                                        onclick="openQrModal(this.src)">
+                                    <p style="font-size:11px;color:#888;margin-top:6px;">Click to enlarge</p>
                                 </div>
-                                <div id="memberName" class="member-name-display"></div>
-                            </div>
 
-                            <div class="col-12 col-sm-6 col-md-4">
-                                <label class="form-label fw-label">Self Wallet Balance</label>
-                                <input type="text" name="wallet_balance" id="selfwalletBalanceInput"
-                                       class="form-control form-control-sm"readonly
-                                       style="background:#f8f9fa;color:#6c757d;font-size:11px;">
-                            </div>
+                                <hr>
 
-                            <div class="col-12 col-sm-6 col-md-4">
-                                <label class="form-label fw-label">Send Wallet Balance</label>
-                                <input type="number" step="0.01" class="form-control form-control-sm"
-                                       value="" required name="request_balance" id="sendBalanceInput" placeholder="Enter amount to send Request">
+                                <div style="font-size:12px;line-height:1.8;color:#444;">
+
+                                    <p><b>📞 Contact:</b> 82502 57091</p>
+                                    <p><b>📧 Email:</b> smartboatofficial@gmail.com</p>
+
+                                    <p style="color:#dc3545;font-weight:600;margin-top:10px;">
+                                        After payment upload screenshot & transaction ID
+                                    </p>
+
+                                </div>
+
                             </div>
 
                         </div>
 
-                      
+                        <!-- RIGHT SIDE -->
+                        <div class="col-md-7">
 
+                            <form method="POST" action="<?php echo e(route('member.smartwallet.companyPayment.store')); ?>"
+                                enctype="multipart/form-data">
+                                <?php echo csrf_field(); ?>
 
-                    </form>
+                                <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+
+                                    <h6 style="font-weight:700;color:#1a3a6b;">
+                                        Payment Details
+                                    </h6>
+
+                                    <div class="row g-3 mt-1">
+
+                                        <div class="col-12">
+                                            <label class="form-label">Member ID</label>
+                                            <input type="text" class="form-control" name="member_id" placeholder="Search member">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">Payment Amount</label>
+                                            <input type="number" step="0.01" class="form-control" name="amount" placeholder="Enter amount">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">Transaction ID</label>
+                                            <input type="text" class="form-control" name="transaction_id" placeholder="Enter transaction ID">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">Payment Screenshot</label>
+                                            <input type="file" class="form-control" name="qr_file">
+                                        </div>
+
+                                        <div class="col-12">
+                                            <label class="form-label">Comment (Optional)</label>
+                                            <textarea class="form-control" name="comment" rows="2"></textarea>
+                                        </div>
+
+                                    </div>
+
+                                    <button type="submit"
+                                            style="margin-top:15px;width:100%;background:#1a3a6b;color:#fff;
+                                                border:none;padding:10px;border-radius:8px;font-weight:600;">
+                                        Submit Payment Request
+                                    </button>
+
+                                </div>
+
+                            </form>
+
+                        </div>
+
+                    </div>
                 </div>
 
+                <!-- FOOTER -->
                 <div class="modal-footer" style="border-top:0.5px solid #dee2e6;">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" form="sendWalletBalanceRequestForm" class="btn btn-primary btn-sm px-4" id="submitSendRequestBtn" disabled>
-                        <i class="bi bi-check2-circle me-1"></i>Send Request
-                    </button>
                 </div>
 
             </div>
         </div>
     </div>
+    
+    
+    <div id="qrModal"
+     style="display:none;position:fixed;inset:0;
+            background:rgba(0,0,0,.85);
+            z-index:9999;
+            align-items:center;
+            justify-content:center;">
 
-    {{-- ===== Send Smart Wallet Request History ===== --}}
+        <div style="position:relative;">
+
+            <img id="qrModalImg"
+                style="max-width:90vw;max-height:90vh;
+                        background:#fff;
+                        padding:10px;
+                        border-radius:12px;">
+
+            <button onclick="closeQrModal()"
+                    style="position:absolute;top:-12px;right:-12px;
+                        width:34px;height:34px;border-radius:50%;
+                        background:#dc3545;color:#fff;border:none;">
+                ×
+            </button>
+
+        </div>
+    </div>
+    
+    <div class="modal fade" id="transactionPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="password" id="transactionPasswordInput" class="form-control" placeholder="Enter password">
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="confirmTransactionPasswordBtn" class="btn btn-primary">Submit</button>
+            </div>
+
+            </div>
+        </div>
+    </div>
+
     
     <div class="card mb-4">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
@@ -96,24 +189,7 @@
             <span><i class="bi bi-clock-history me-2"></i>Sender Request History</span>
         </div>
         <div class="card-body p-0">
-            <div class="table-responsive p-3">
-
-                {{-- Bulk Action Bar --}}
-                <div id="bulkActionBar" class="bulk-action-bar">
-                    <span id="selectedCount" class="bulk-count">0 selected</span>
-                    <form id="bulkDeleteForm" method="POST"
-                          action="{{ route('member.productpurchase.bulkDelete') }}"
-                          style="display:inline;">
-                        @csrf
-                        <div id="bulkDeleteIds"></div>
-                        <button type="button" id="bulkDeleteBtn" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash me-1"></i>Delete Selected
-                        </button>
-                    </form>
-                    <button type="button" id="clearSelection" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-x me-1"></i>Clear
-                    </button>
-                </div>
+            <div class="table-responsive p-3">                
 
                 <table id="sendWalletBalanceRequestHistoryTable"
                        class="table table-bordered mb-0"
@@ -127,7 +203,7 @@
                             <th>#</th>
                             <th>Member</th>
                             <th>Date &amp; Time</th>
-                            <th>Request Amount</th>
+                            <th>Sent Amount</th>
                             <th>Status</th>
                             <th class="text-center" style="width:80px;">Actions</th>
                         </tr>
@@ -141,21 +217,38 @@
     </div>
     
 
-@endsection
-
-@push('scripts')
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('member.smartwallet.chatbox', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php echo $__env->make('member.smartwallet.chat-script', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php $__env->startPush('scripts'); ?>
 
 <script>
+    function openQrModal(src) {
+        document.getElementById('qrModalImg').src = src;
+        document.getElementById('qrModal').style.display = 'flex';
+    }
+
+    function closeQrModal() {
+        document.getElementById('qrModal').style.display = 'none';
+    }
+
+    document.addEventListener('click', function(e) {
+        let modal = document.getElementById('qrModal');
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 $(document).ready(function () {
+    
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ------------------------------------------------ START OPEN NEW REQUEST MODAL----------------------------------------------------------------
+    // ------------------------------------------------ START OPEN NEW SENDING WALLET bALANCE MODAL----------------------------------------------------------------
     $('#addModal').on('shown.bs.modal', function () {
         $('#sendWalletBalanceRequestForm')[0].reset();
 
         $('#memberName').html('');
         $('#selfwalletBalanceInput').val('');
         $('#memberIdInputForWalletRequestSend').val('');
-        $('#submitSendRequestBtn').prop('disabled', true);
+        $('#submitSendWalletBalanceBtn').prop('disabled', true);
 
         $('#memberDropdown').hide();
         loadMembers();
@@ -163,7 +256,7 @@ $(document).ready(function () {
 
     function loadMembers() {
         $.ajax({
-            url: "{{ route('member.smartwallet.userToUser.members') }}",
+            url: "<?php echo e(route('member.smartwallet.userToUser.members')); ?>",
             type: "GET",
             dataType: "json",
 
@@ -192,23 +285,25 @@ $(document).ready(function () {
         });
     }
     function renderMemberDropdown(list) {
-
         let html = '';
 
         if (list.length > 0) {
 
             $.each(list, function (i, m) {
 
+                let name = m.name.trim().toLowerCase();
+                name = name.charAt(0).toUpperCase() + name.slice(1);
+
                 html += `
                     <div class="member-item"
                         style="padding:10px 12px;border-bottom:1px solid #eee;cursor:pointer;
                             display:flex;justify-content:space-between;align-items:center;"
                         data-id="${m.memberID}"
-                        data-name="${m.name}">
+                        data-name="${name}">
 
                         <div>
                             <div style="font-weight:600;color:#1a3a6b;font-size:13px;">
-                                ${m.name}
+                                ${name}
                             </div>                           
                         </div>
 
@@ -240,9 +335,7 @@ $(document).ready(function () {
         let balance = $(this).data('balance') ?? 0;
 
         $('#memberSearchInputForWalletRequestSend').val(name + ' - ' + id);
-        $('#memberIdInputForWalletRequestSend').val(id);
-
-        // $('#selfwalletBalanceInput').val(parseFloat(balance).toFixed(2));
+        $('#memberIdInputForWalletRequestSend').val(id);        
 
         $('#memberDropdown').hide();
 
@@ -261,7 +354,7 @@ $(document).ready(function () {
         let walletBalance = parseFloat($('#selfwalletBalanceInput').val()) || 0;
 
         if (requestAmount > walletBalance) {
-            toastr.error('Request amount cannot be greater than wallet balance');
+            toastr.error('Send amount cannot be greater than wallet balance');
 
             $(this).val(walletBalance); 
         }
@@ -278,9 +371,9 @@ $(document).ready(function () {
         let walletBalance = parseFloat($('#selfwalletBalanceInput').val()) || 0;
 
         if (memberID !== '' && requestAmount !== '' && parseFloat(requestAmount) > 0 && parseFloat(requestAmount) <= walletBalance) {
-            $('#submitSendRequestBtn').prop('disabled', false);
+            $('#submitSendWalletBalanceBtn').prop('disabled', false);
         } else {
-            $('#submitSendRequestBtn').prop('disabled', true);
+            $('#submitSendWalletBalanceBtn').prop('disabled', true);
         }
     }
     // Page load par check
@@ -295,69 +388,74 @@ $(document).ready(function () {
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    //---------------------------------------------------------START NEW REQUEST FORM SUBMIT------------------------------------------------------------------------------
-    $('#sendWalletBalanceRequestForm').on('submit', function (e) {
-        e.preventDefault();
+    //---------------------------------------------------------START NEW SENDING WALLET bALANCE FORM SUBMIT------------------------------------------------------------------------------
+    $('#submitSendWalletBalanceBtn').on('click', function () {
 
-        let form = $(this);
-        let btn  = $('#submitSendRequestBtn');
+        $('#transactionPasswordInput').val('');
+        let tpModal = new bootstrap.Modal(document.getElementById('transactionPasswordModal'));
+        tpModal.show();
+
+    });
+
+    $('#confirmTransactionPasswordBtn').on('click', function () {
+
+        let password = $('#transactionPasswordInput').val();
+
+        if (!password) {
+            toastr.error('Transaction password required');
+            return;
+        }
+
+        let form = $('#sendWalletBalanceRequestForm');
+        let btn  = $('#submitSendWalletBalanceBtn');
+
+        bootstrap.Modal.getInstance(document.getElementById('transactionPasswordModal')).hide();
 
         btn.prop('disabled', true).html('Processing...');
 
         $.ajax({
             url: form.attr('action'),
             type: "POST",
-            data: form.serialize(),
-            dataType: "json",
+            data: form.serialize() + '&transaction_password=' + password,
 
             success: function (res) {
 
-                btn.prop('disabled', false).html('Send Request');
-                let modal = bootstrap.Modal.getInstance(document.getElementById('addModal'));
-                modal.hide();
+                btn.prop('disabled', false).html('Send Wallet Balance');
 
-                if (res.status) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    html: res.message
+                });
+                $('#selfwalletBalanceForNavBar').html(
+                    '<i class="bi bi-wallet2 me-1"></i> ₹' + res.selfwalletBalance
+                );
+                $('#addModal').modal('hide');
+                $('#sendWalletBalanceRequestHistoryTable').DataTable().ajax.reload(null, false);
 
-                    //  SUCCESS POPUP (FULL SMS)
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Request Sent Successfully',
-                        html: `<div style="font-size:14px;line-height:1.6;text-align:left;">
-                                    ${res.message}
-                               </div>`,
-                        confirmButtonColor: '#1a3a6b'
-                    });
-
-                    $('#sendWalletBalanceRequestHistoryTable').DataTable().ajax.reload(null, false);
-                    // reset form
-                    form[0].reset();
-                    $('#memberName').html('');
-                    $('#selfwalletBalanceInput').val('');
-                    $('#memberIdInputForWalletRequestSend').val('');
-                    $('#submitSendRequestBtn').prop('disabled', true);
-                }
+                form[0].reset();
             },
 
             error: function (xhr) {
 
-                btn.prop('disabled', false).html('Send Request');
+                btn.prop('disabled', false).html('Send Wallet Balance');
 
-                //  Validation error (422)
-                if (xhr.status === 422) {
+                let msg = 'Something went wrong!';
 
-                    let errors = xhr.responseJSON.errors;
-
-                    $.each(errors, function (key, val) {
-                        toastr.error(val[0]);
-                    });
-
-                } else {
-                    toastr.error('Something went wrong!');
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
                 }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: msg
+                });
             }
         });
+
     });
-    //---------------------------------------------------------END NEW REQUEST FORM SUBMIT------------------------------------------------------------------------------
+    //---------------------------------------------------------END NEW SENDING WALLET bALANCE FORM SUBMIT------------------------------------------------------------------------------
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
      
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -365,12 +463,11 @@ $(document).ready(function () {
     $('#sendWalletBalanceRequestHistoryTable').DataTable({
         processing: true,
         serverSide: false,
-        ajax: "{{ route('member.smartwallet.senderList') }}",
+        ajax: "<?php echo e(route('member.smartwallet.userToUser.senderList')); ?>",
         columns: [
             { data: 'checkbox', orderable:false, searchable:false },
             { data: 'DT_RowIndex' },
             { data: 'member' },
-            // { data: 'member_text', visible: false },
             { data: 'date' },
             { data: 'amount' },
             { data: 'status' },
@@ -400,9 +497,8 @@ $(document).ready(function () {
                                 // Convert HTML to text
                                 let name = $(node).find('div').eq(0).text().trim();
                                 let memberId = $(node).find('div').eq(1).text().trim();
-                                let phone = $(node).find('div').eq(2).text().trim();
 
-                                return `${name} - ${memberId} - ${phone}`;
+                                return `${name} - ${memberId}`;
                             }
 
                             return $(node).text().trim();
@@ -428,9 +524,8 @@ $(document).ready(function () {
                                 // Convert HTML to text
                                 let name = $(node).find('div').eq(0).text().trim();
                                 let memberId = $(node).find('div').eq(1).text().trim();
-                                let phone = $(node).find('div').eq(2).text().trim();
 
-                                return `${name} - ${memberId} - ${phone}`;
+                                return `${name} - ${memberId}`;
                             }
 
                             return $(node).text().trim();
@@ -454,9 +549,8 @@ $(document).ready(function () {
                                 // Convert HTML to text
                                 let name = $(node).find('div').eq(0).text().trim();
                                 let memberId = $(node).find('div').eq(1).text().trim();
-                                let phone = $(node).find('div').eq(2).text().trim();
 
-                                return `${name} - ${memberId} - ${phone}`;
+                                return `${name} - ${memberId}`;
                             }
 
                             return $('<div>').html(data).text().trim();
@@ -481,189 +575,35 @@ $(document).ready(function () {
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ----------------------------------------------------------------------------- START SINGLE ROW DELETE -------------------------------------------------
-    $(document).on('click', '.delete-btn', function () {
+    // ---------------------------------------------------------START MEMBER NAME SEARCH------------------------------------------------------------------------------
+    $(document).on('keyup', '#memberSearchInputForWalletRequestSend', function () {
 
-        let id = $(this).data('id');
+        let keyword = $(this).val().toLowerCase().trim();
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This action cannot be undone!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-
-            if (result.isConfirmed) {
-
-                $.ajax({
-                    url: "{{ route('member.smartwallet.deleteOne', ['id' => '__ID__']) }}".replace('__ID__', id),
-                    type: 'POST',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        _method: 'DELETE'
-                    },
-
-                    success: function (res) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: res.message || 'Record deleted successfully',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-
-                        $('#sendWalletBalanceRequestHistoryTable').DataTable().ajax.reload(null, false);
-
-                    },
-
-                    error: function () {
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Oops...',
-                            text: 'Something went wrong!'
-                        });
-
-                    }
-                });
-
-            }
-
-        });
-
-    });
-    // ----------------------------------------------------------------------------- END SINGLE ROW DELETE ---------------------------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    
-
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ----------------------------------------------------------START CHECK BOX SELECTION---------------------------------------------------------------------------
-    function updateBulkBar() {
-
-        const checked = $('.row-checkbox:checked');
-
-        if (checked.length > 0) {
-
-            $('#bulkActionBar').addClass('show');
-            $('#selectedCount').text(checked.length + ' selected');
-
-            $('#bulkDeleteBtn').prop('disabled', false);
-
-        } else {
-
-            $('#bulkActionBar').removeClass('show');
-            $('#selectedCount').text('0 selected');
-
-            $('#bulkDeleteBtn').prop('disabled', true);
-        }
-    }
-
-    $('#selectAll').on('change', function () {
-        const c = $(this).prop('checked');
-        $('.row-checkbox').prop('checked', c);
-        $('#sendWalletBalanceRequestHistoryTable tbody tr').toggleClass('row-selected', c);
-        updateBulkBar();
-    });
-
-    $(document).on('change', '.row-checkbox', function () {
-        $(this).closest('tr').toggleClass('row-selected', $(this).prop('checked'));
-        const total   = $('.row-checkbox').length;
-        const checked = $('.row-checkbox:checked').length;
-        $('#selectAll').prop('indeterminate', checked > 0 && checked < total)
-                       .prop('checked', checked === total);
-        updateBulkBar();
-    });
-
-    $('#clearSelection').on('click', function () {
-        $('.row-checkbox, #selectAll').prop('checked', false).prop('indeterminate', false);
-        $('#sendWalletBalanceRequestHistoryTable tbody tr').removeClass('row-selected');
-        updateBulkBar();
-    });
-    // ----------------------------------------------------------END CHECK BOX SELECTION---------------------------------------------------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    //----------------------------------------------------------START BULK DELETE----------------------------------------------------------------
-    $('#bulkDeleteBtn').on('click', function () {
-
-        let ids = [];
-
-        $('.row-checkbox:checked').each(function () {
-            ids.push($(this).val());
-        });
-
-        if (ids.length === 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'No items selected'
-            });
+        if (!keyword) {
+            renderMemberDropdown(memberCache);
             return;
         }
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: ids.length + " items will be deleted!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
+        let filtered = memberCache.filter(m => {
 
-            if (result.isConfirmed) {
+            let name = (m.name || '').toLowerCase();
+            let id = (m.memberID || '').toLowerCase();
 
-                $.ajax({
-                    url: "{{ route('member.smartwallet.bulkDelete') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        ids: ids
-                    },
-
-                    success: function (res) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: res.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-
-                        $('#sendWalletBalanceRequestHistoryTable').DataTable().ajax.reload(null, false);
-
-                        // reset selection
-                        $('.row-checkbox, #selectAll').prop('checked', false).prop('indeterminate', false);
-                        $('#bulkActionBar').removeClass('show');
-
-                    },
-
-                    error: function () {
-
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Something went wrong!'
-                        });
-
-                    }
-                });
-
-            }
-
+            return name.includes(keyword) || id.includes(keyword);
         });
 
+        renderMemberDropdown(filtered);
     });
-    //----------------------------------------------------------END BULK DELETE-------------------------------------------------------------------
+    // ---------------------------------------------------------END MEMBER NAME SEARCH------------------------------------------------------------------------------
     // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-       
+    
 
+    
 
 });
 
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('member.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH F:\xampp\htdocs\SmartBoat\ecosystemnew\resources\views/member/smartwallet/companyPayment.blade.php ENDPATH**/ ?>
