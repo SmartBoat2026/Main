@@ -28,7 +28,7 @@ class ProductPurchase extends Model
         return $this->hasMany(ProductPurchaseList::class, 'purchase_id');
     }
 
-    // ✅ FIX — ownerKey must be 'memberID' (varchar), NOT 'member_id' (int PK)
+    //  FIX — ownerKey must be 'memberID' (varchar), NOT 'member_id' (int PK)
     public function member()
     {
         return $this->belongsTo(ManageReport::class, 'member_id', 'memberID');

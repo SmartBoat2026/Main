@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('smart_wallet_requests', function (Blueprint $table) {
+        Schema::create('smart_wallet_user_to_users', function (Blueprint $table) {
             $table->id();
 
             $table->string('sender_member_id');
@@ -22,7 +22,7 @@ return new class extends Migration
 
             $table->tinyInteger('status')
                 ->default(1)
-                ->comment('1 = pending, 2 = accepted, 3 = rejected, 4 = cancelled');
+                ->comment('1 = pending, 2 = accepted, 3 = rejected, 4 = cancelled ,5= confirmed, 6=received ');
 
             $table->timestamps();
         });

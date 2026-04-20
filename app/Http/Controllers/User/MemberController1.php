@@ -48,12 +48,12 @@ class MemberController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $creditTotal = DB::table('transaction')
+        $creditTotal = DB::table('transactions')
             ->where('member_id', $member->memberID)
             ->where('type', 'Credit')
             ->sum(DB::raw('CAST(amount AS DECIMAL(10,2))'));
 
-        $debitTotal = DB::table('transaction')
+        $debitTotal = DB::table('transactions')
             ->where('member_id', $member->memberID)
             ->where('type', 'Debit')
             ->sum(DB::raw('CAST(amount AS DECIMAL(10,2))'));

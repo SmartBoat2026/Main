@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('smart_wallet_requests', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+        Schema::table('member_stp_schedules', function (Blueprint $table) {
+            $table->string('running_hrs', 100)->change();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('smart_wallet_requests');
+        Schema::table('member_stp_schedules', function (Blueprint $table) {
+            $table->json('running_hrs')->nullable()->change();
+        });
     }
 };

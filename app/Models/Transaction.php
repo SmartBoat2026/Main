@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     // Table name (kyunki default plural hota hai: transactions)
-    protected $table = 'transaction';
+    protected $table = 'transactions';
 
     // Primary key
     protected $primaryKey = 'id';

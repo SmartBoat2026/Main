@@ -23,7 +23,7 @@ use App\Http\Controllers\User\MemberController;
 use App\Http\Controllers\User\MemberProductPurchaseController;
 use App\Http\Controllers\User\MemberstpschedulesController;
 use App\Http\Controllers\User\MemberPaymentController;
-use App\Http\Controllers\User\MemberSmartWalletController;
+use App\Http\Controllers\User\SmartWallet\UserToUsersController;
 
 
 // ─── Root: redirect to login ──────────────────────────────────────────────────
@@ -164,12 +164,16 @@ Route::middleware('member.auth')->prefix('member')->name('member.')->group(funct
     Route::get('/payment-details',         [MemberPaymentController::class, 'show'])->name('payment.details.show');
 
     // ── Smart Wallet ───────────────────────────────────────────────────────────
-    Route::get('/smart-wallet/sender',      [MemberSmartWalletController::class, 'sender'])->name('smartwallet.sender');
-    Route::get('/smart-wallet/members',     [MemberSmartWalletController::class, 'getMembers'])->name('smartwallet.member');
-
-    Route::get('/smart-wallet/receiver',    [MemberSmartWalletController::class, 'receiver'])->name('smartwallet.receiver');
-    Route::post('/smart-wallet/store',      [MemberSmartWalletController::class, 'store'])->name('smartwallet.store');
-    Route::post('/smart-wallet/update/{id}', [MemberSmartWalletController::class, 'update'])->name('smartwallet.update');
-    Route::post('/smart-wallet/delete/{id}', [MemberSmartWalletController::class, 'delete'])->name('smartwallet.delete');
+    Route::get('/smart-wallet/sender',      [UserToUsersController::class, 'sender'])->name('smartwallet.sender');
+    Route::get('/smart-wallet/senderList',  [UserToUsersController::class, 'senderList'])->name('smartwallet.senderList');
+    Route::get('/smart-wallet/members',     [UserToUsersController::class, 'getMembers'])->name('smartwallet.member');
+    Route::delete('/smart-wallet/deleteOne/{id}', [UserToUsersController::class, 'deleteOne'])->name('smartwallet.deleteOne');
+    Route::post('/member/smart-wallet/bulk-delete', [UserToUsersController::class, 'bulkDelete'])->name('smartwallet.bulkDelete');
+    Route::post('/smart-wallet/store',      [UserToUsersController::class, 'store'])->name('smartwallet.store');
+    
+    
+    Route::get('/smart-wallet/receiver',    [UserToUsersController::class, 'receiver'])->name('smartwallet.receiver');
+    Route::get('/smart-wallet/receiverList', [UserToUsersController::class, 'receiverList'])->name('smartwallet.receiverList');
+    Route::post('/smart-wallet/update/{id}', [UserToUsersController::class, 'update'])->name('smartwallet.update');
 
 });

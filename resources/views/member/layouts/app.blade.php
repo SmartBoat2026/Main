@@ -502,7 +502,7 @@
 
 
         @if(isset($smartWalletBalance))
-        <span class="sb-member-badge" style="
+        <span class="sb-member-badge" id="selfwalletBalanceForNavBar" style="
             background: rgba(44,95,46,.35);
             border-color: rgba(77,214,156,.4);
             color: #4dd69c;">
@@ -591,27 +591,37 @@
         <span class="nav-label">STP Schedules</span>
     </a>
     <!-- Smart Wallet START -->
-     <a href="#smartWalletDropdown"
-       class="nav-link {{ request()->routeIs('member.smartwallet*') ? 'active' : '' }}"
-       data-bs-toggle="collapse"
-       aria-expanded="{{ request()->routeIs('member.smartwallet*') ? 'true' : 'false' }}"
-       data-bs-title="Smart Wallet">
-        <i class="bi bi-wallet2"></i>
+    <a href="#smartWalletDropdown"
+    class="nav-link {{ request()->routeIs('member.smartwallet*') ? 'active' : '' }}"
+    data-bs-toggle="collapse"
+    aria-expanded="{{ request()->routeIs('member.smartwallet*') ? 'true' : 'false' }}" data-bs-title="Smart Wallet">
+        <i class="bi bi-wallet-fill"></i>
         <span class="nav-label">Smart Wallet</span>
         <i class="bi bi-chevron-down nav-arrow"></i>
     </a>
+
     <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet*') ? 'show' : '' }}"
-         id="smartWalletDropdown">
-        <a href="{{ route('member.smartwallet.sender') }}"
-           class="nav-link {{ request()->is('*sender*') ? 'active' : '' }}">
-            <i class="bi bi-people-fill"></i>
-            <span class="nav-label">Sender</span>
+        id="smartWalletDropdown">
+        <a href="#smartWalletUserToUserDropdown"
+        class="nav-link {{ request()->routeIs('member.smartwallet*') ? 'active' : '' }}"
+        data-bs-toggle="collapse"
+        aria-expanded="{{ request()->routeIs('member.smartwallet*') ? 'true' : 'false' }}" data-bs-title="Smart Wallet">
+            <i class="bi bi-wallet2"></i>
+            <span class="nav-label">USER TO USER TRANSFER</span>
+            <i class="bi bi-chevron-down nav-arrow"></i>
         </a>
-        <a href="{{ route('member.smartwallet.receiver') }}"
-           class="nav-link {{ request()->is('*receiver*') ? 'active' : '' }}">
-            <i class="bi bi-people-fill"></i>
-            <span class="nav-label">Receiver</span>
-        </a>
+        <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet*') ? 'show' : '' }}"
+        id="smartWalletUserToUserDropdown">
+            <a href="{{ route('member.smartwallet.sender') }}"
+            class="nav-link {{ request()->routeIs('member.smartwallet.sender') ? 'active' : '' }}">
+                <span class="nav-label">Sent</span>
+            </a>
+
+            <a href="{{ route('member.smartwallet.receiver') }}"
+            class="nav-link {{ request()->routeIs('member.smartwallet.receiver') ? 'active' : '' }}">
+                <span class="nav-label">Received</span>
+            </a>
+        </div>
     </div>
     <!-- Smart Wallet END -->
 

@@ -37,4 +37,9 @@ class ManageReport extends Model
     {
         return $this->password === $password;
     }
+    public function activeMember()
+    {
+        return $this->belongsTo(ProductPurchaseList::class, 'memberID', 'member_id')
+                    ->where('product_dp', '>=', 1.00);
+    }
 }
