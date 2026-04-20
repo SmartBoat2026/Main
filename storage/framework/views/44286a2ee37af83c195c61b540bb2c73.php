@@ -45,7 +45,7 @@
                                 </p>
 
                                 <div style="text-align:center;margin:15px 0;">
-                                    <img src="https://smartboatecosystem.com/Main/public/admin/assets/images/HindolMukherjeeQRCode.png"
+                                    <img src="<?php echo e(asset('admin/assets/images/HindolMukherjeeQRCode.png')); ?>"
                                         style="width:180px;border-radius:10px;cursor:pointer;"
                                         onclick="openQrModal(this.src)">
                                     <p style="font-size:11px;color:#888;margin-top:6px;">Click to enlarge</p>
@@ -55,8 +55,8 @@
 
                                 <div style="font-size:12px;line-height:1.8;color:#444;">
 
-                                    <p><b>📞 Contact:</b> 82502 57091</p>
-                                    <p><b>📧 Email:</b> smartboatofficial@gmail.com</p>
+                                    <p id="adminPhone"><b>📞 Contact:</b> 82502 57091</p>
+                                    <p id="adminEmail"><b>📧 Email:</b> smartboatofficial@gmail.com</p>
 
                                     <p style="color:#dc3545;font-weight:600;margin-top:10px;">
                                         After payment upload screenshot & transaction ID
@@ -71,8 +71,8 @@
                         <!-- RIGHT SIDE -->
                         <div class="col-md-7">
 
-                            <form method="POST" action="<?php echo e(route('member.smartwallet.companyPayment.store')); ?>"
-                                enctype="multipart/form-data">
+                            <form method="POST" action="<?php echo e(route('member.smartwallet.companyPayment.store')); ?>" 
+                                enctype="multipart/form-data" id="CompanyPaymentSubmissionForm">
                                 <?php echo csrf_field(); ?>
 
                                 <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
@@ -84,22 +84,22 @@
                                     <div class="row g-3 mt-1">
 
                                         <div class="col-12">
-                                            <label class="form-label">Member ID</label>
-                                            <input type="text" class="form-control" name="member_id" placeholder="Search member">
+                                            <label class="form-label">Member ID</label><span class="text-danger">*</span>
+                                            <input type="text" class="form-control" id="selfMemberIdInput" name="member_id"  required readonly>
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">Payment Amount</label>
+                                            <label class="form-label">Payment Amount</label><span class="text-danger">*</span>
                                             <input type="number" step="0.01" class="form-control" name="amount" placeholder="Enter amount">
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">Transaction ID</label>
+                                            <label class="form-label">Transaction ID</label><span class="text-danger">*</span>
                                             <input type="text" class="form-control" name="transaction_id" placeholder="Enter transaction ID">
                                         </div>
 
                                         <div class="col-12">
-                                            <label class="form-label">Payment Screenshot</label>
+                                            <label class="form-label">Payment Screenshot</label><span class="text-danger">*</span>
                                             <input type="file" class="form-control" name="qr_file">
                                         </div>
 
@@ -110,11 +110,7 @@
 
                                     </div>
 
-                                    <button type="submit"
-                                            style="margin-top:15px;width:100%;background:#1a3a6b;color:#fff;
-                                                border:none;padding:10px;border-radius:8px;font-weight:600;">
-                                        Submit Payment Request
-                                    </button>
+                                    
 
                                 </div>
 
@@ -128,6 +124,9 @@
                 <!-- FOOTER -->
                 <div class="modal-footer" style="border-top:0.5px solid #dee2e6;">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" id="submitCompanyPaymentSubmission" class="btn btn-primary btn-sm px-4" disabled>
+                        <i class="bi bi-check-circle-fill me-2"></i> Submit Payment Request
+                    </button>
                 </div>
 
             </div>
@@ -191,19 +190,17 @@
         <div class="card-body p-0">
             <div class="table-responsive p-3">                
 
-                <table id="sendWalletBalanceRequestHistoryTable"
+                <table id="sendCompanyPaymentSubmissionHistoryTable"
                        class="table table-bordered mb-0"
                        style="font-size:13px;width:100%;">
                     <thead style="background:#2c5f2e;color:#fff;">
                         <tr>
-                            <th style="width:40px;text-align:center;">
-                                <input type="checkbox" id="selectAll"
-                                       style="cursor:pointer;width:15px;height:15px;">
-                            </th>
                             <th>#</th>
-                            <th>Member</th>
                             <th>Date &amp; Time</th>
                             <th>Sent Amount</th>
+                            <th>Transaction ID</th>
+                            <th>Payment Screenshot</th>
+                            <th>Comments</th>
                             <th>Status</th>
                             <th class="text-center" style="width:80px;">Actions</th>
                         </tr>
@@ -218,8 +215,8 @@
     
 
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('member.smartwallet.chatbox', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-<?php echo $__env->make('member.smartwallet.chat-script', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php echo $__env->make('chatbox', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+<?php echo $__env->make('chat-script', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 <?php $__env->startPush('scripts'); ?>
 
 <script>
@@ -240,23 +237,17 @@
     });
 $(document).ready(function () {
     
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ------------------------------------------------ START OPEN NEW SENDING WALLET bALANCE MODAL----------------------------------------------------------------
-    $('#addModal').on('shown.bs.modal', function () {
-        $('#sendWalletBalanceRequestForm')[0].reset();
+    //═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // ------------ START OPEN NEW SENDING WALLET bALANCE MODAL----------------------------------------------------------------
+    $('#addModal').on('hidden.bs.modal', function () {
 
-        $('#memberName').html('');
-        $('#selfwalletBalanceInput').val('');
-        $('#memberIdInputForWalletRequestSend').val('');
-        $('#submitSendWalletBalanceBtn').prop('disabled', true);
+        let form = $(this).find('form')[0];
+        if (form) form.reset();
 
-        $('#memberDropdown').hide();
-        loadMembers();
     });
-
-    function loadMembers() {
-        $.ajax({
-            url: "<?php echo e(route('member.smartwallet.userToUser.members')); ?>",
+    $('#addModal').on('shown.bs.modal', function () {
+         $.ajax({
+            url: "<?php echo e(route('member.smartwallet.companyPayment.loadModelOpenData')); ?>",
             type: "GET",
             dataType: "json",
 
@@ -269,10 +260,9 @@ $(document).ready(function () {
             },
 
             success: function (data) {
-
-                memberCache = data.results || []; //  cache store
-                $('#selfwalletBalanceInput').val(data.selfwalletBalance);
-                renderMemberDropdown(memberCache);
+                $('#adminPhone').html('<b>📞 Contact:</b> ' + data.adminPh );
+                $('#adminEmail').html('<b>✉️ Email:</b> ' + data.adminEmail );
+                $('#selfMemberIdInput').val(data.sessionMemberId);                
             },
 
             error: function () {
@@ -283,140 +273,56 @@ $(document).ready(function () {
                 `).show();
             }
         });
-    }
-    function renderMemberDropdown(list) {
-        let html = '';
-
-        if (list.length > 0) {
-
-            $.each(list, function (i, m) {
-
-                let name = m.name.trim().toLowerCase();
-                name = name.charAt(0).toUpperCase() + name.slice(1);
-
-                html += `
-                    <div class="member-item"
-                        style="padding:10px 12px;border-bottom:1px solid #eee;cursor:pointer;
-                            display:flex;justify-content:space-between;align-items:center;"
-                        data-id="${m.memberID}"
-                        data-name="${name}">
-
-                        <div>
-                            <div style="font-weight:600;color:#1a3a6b;font-size:13px;">
-                                ${name}
-                            </div>                           
-                        </div>
-
-                        <span style="background:#e6f1fb;color:#0c447c;
-                                    padding:2px 8px;border-radius:12px;
-                                    font-size:11px;font-weight:600;">
-                            ${m.memberID}
-                        </span>
-
-                    </div>
-                `;
-            });
-
-        } else {
-            html = `<div style="padding:10px;color:#dc3545;font-size:12px;">No members found</div>`;
-        }
-
-        $('#memberDropdown').html(html).show();
-    }
-    // ------------------------------------------------END OPEN NEW REQUEST MODAL----------------------------------------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-   
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ------------------------------------------------START CHOSSE MEMBER FROM LIST ON NEW REQUEST MODAL----------------------------------------------------------------
-    $(document).on('click', '.member-item', function () {
-
-        let id      = $(this).data('id');
-        let name    = $(this).data('name');
-        let balance = $(this).data('balance') ?? 0;
-
-        $('#memberSearchInputForWalletRequestSend').val(name + ' - ' + id);
-        $('#memberIdInputForWalletRequestSend').val(id);        
-
-        $('#memberDropdown').hide();
-
-        $('#memberName').html(
-            `<span style="color:#27500a;font-weight:600;">✔ ${name} | ${id}</span>`
-        );
     });
-    // ------------------------------------------------END CHOSSE MEMBER FROM LIST ON NEW REQUEST MODAL----------------------------------------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ------------------------------------------------START CHECKING VALID REQUESTBALANCE ON NEW REQUEST MODAL----------------------------------------------------------------
-    $(document).on('input', '#sendBalanceInput', function () {
-
-        let requestAmount = parseFloat($(this).val()) || 0;
-        let walletBalance = parseFloat($('#selfwalletBalanceInput').val()) || 0;
-
-        if (requestAmount > walletBalance) {
-            toastr.error('Send amount cannot be greater than wallet balance');
-
-            $(this).val(walletBalance); 
-        }
-    });
-    // ------------------------------------------------END CHECKING VALID REQUESTBALANCE ON NEW REQUEST MODAL----------------------------------------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
    
+    // -----------------------------END OPEN NEW REQUEST MODAL----------------------------------------------------------------
+    // ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+     
 
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    //----------------------------------------------START CHECK FORM DATA FOR ENABLE/DISABLE SUBMIT BUTTOM-------------------------------------------------------
+    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    //--------------------------START CHECK FORM DATA FOR ENABLE/DISABLE SUBMIT BUTTOM--------------------------------------------
     function checkForm() {
-        let memberID = $('#memberIdInputForWalletRequestSend').val().trim();
-        let requestAmount = $('#sendBalanceInput').val().trim();        
-        let walletBalance = parseFloat($('#selfwalletBalanceInput').val()) || 0;
+        let memberId = $('input[name="member_id"]').val();
+        let amount = $('input[name="amount"]').val();
+        let txnId = $('input[name="transaction_id"]').val();
+        let file = $('input[name="qr_file"]')[0].files.length;
 
-        if (memberID !== '' && requestAmount !== '' && parseFloat(requestAmount) > 0 && parseFloat(requestAmount) <= walletBalance) {
-            $('#submitSendWalletBalanceBtn').prop('disabled', false);
+        if ( memberId.trim() !== '' && amount !== '' && parseFloat(amount) > 0 && txnId.trim() !== '' && file > 0
+        ) {
+            $('#submitCompanyPaymentSubmission').prop('disabled', false);
         } else {
-            $('#submitSendWalletBalanceBtn').prop('disabled', true);
+            $('#submitCompanyPaymentSubmission').prop('disabled', true);
         }
     }
     // Page load par check
     checkForm();
-    $('#memberDropdown').on('click', function () {
+   
+    $('input[name="amount"], input[name="transaction_id"], input[name="qr_file"]').on('keyup change', function () {
         checkForm();
     });
-    $('#sendBalanceInput').on('keyup change', function () {
-        checkForm();
-    });
-    //----------------------------------------------END CHECK FORM DATA FOR ENABLE/DISABLE SUBMIT BUTTOM-------------------------------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    //--------------------------END CHECK FORM DATA FOR ENABLE/DISABLE SUBMIT BUTTOM------------------------------------------------
+    // ══════════════════════════════════════════════════════════════════════════════════════════════════
 
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════
     //---------------------------------------------------------START NEW SENDING WALLET bALANCE FORM SUBMIT------------------------------------------------------------------------------
-    $('#submitSendWalletBalanceBtn').on('click', function () {
+    
 
-        $('#transactionPasswordInput').val('');
-        let tpModal = new bootstrap.Modal(document.getElementById('transactionPasswordModal'));
-        tpModal.show();
+    $('#submitCompanyPaymentSubmission').on('click', function () {
+        let form = $('#CompanyPaymentSubmissionForm')[0];
+        let btn = $(this);
 
-    });
-
-    $('#confirmTransactionPasswordBtn').on('click', function () {
-
-        let password = $('#transactionPasswordInput').val();
-
-        if (!password) {
-            toastr.error('Transaction password required');
-            return;
-        }
-
-        let form = $('#sendWalletBalanceRequestForm');
-        let btn  = $('#submitSendWalletBalanceBtn');
-
-        bootstrap.Modal.getInstance(document.getElementById('transactionPasswordModal')).hide();
-
-        btn.prop('disabled', true).html('Processing...');
+        let formData = new FormData(form);
 
         $.ajax({
-            url: form.attr('action'),
+            url: $(form).attr('action'),
             type: "POST",
-            data: form.serialize() + '&transaction_password=' + password,
+            data: formData,
+            processData: false,
+            contentType: false,
+
+            beforeSend: function () {
+                btn.prop('disabled', true).html('Submitting...');
+            },
 
             success: function (res) {
 
@@ -425,15 +331,13 @@ $(document).ready(function () {
                 Swal.fire({
                     icon: 'success',
                     title: 'Success',
-                    html: res.message
+                    text: res.message
                 });
-                $('#selfwalletBalanceForNavBar').html(
-                    '<i class="bi bi-wallet2 me-1"></i> ₹' + res.selfwalletBalance
-                );
-                $('#addModal').modal('hide');
-                $('#sendWalletBalanceRequestHistoryTable').DataTable().ajax.reload(null, false);
 
-                form[0].reset();
+                $('#addModal').modal('hide');
+                $('#sendCompanyPaymentSubmissionHistoryTable').DataTable().ajax.reload(null, false);
+                form.reset();
+
             },
 
             error: function (xhr) {
@@ -442,7 +346,7 @@ $(document).ready(function () {
 
                 let msg = 'Something went wrong!';
 
-                if (xhr.responseJSON && xhr.responseJSON.message) {
+                if (xhr.responseJSON?.message) {
                     msg = xhr.responseJSON.message;
                 }
 
@@ -455,29 +359,30 @@ $(document).ready(function () {
         });
 
     });
-    //---------------------------------------------------------END NEW SENDING WALLET bALANCE FORM SUBMIT------------------------------------------------------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    //--------------------------------END NEW SENDING WALLET bALANCE FORM SUBMIT--------------------------------------------------------
+    // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
      
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ---------------------------------------------- START SECTION DATABASE CALL , EXCEL , PDF DOWNLOAD , SEARCHING , PRINT ----------------------------------
-    $('#sendWalletBalanceRequestHistoryTable').DataTable({
+    // ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // --------------------------- START SECTION DATABASE CALL , EXCEL , PDF DOWNLOAD , SEARCHING , PRINT ----------------
+    $('#sendCompanyPaymentSubmissionHistoryTable').DataTable({
         processing: true,
         serverSide: false,
-        ajax: "<?php echo e(route('member.smartwallet.userToUser.senderList')); ?>",
+        ajax: "<?php echo e(route('member.smartwallet.companyPayment.list')); ?>",
         columns: [
-            { data: 'checkbox', orderable:false, searchable:false },
             { data: 'DT_RowIndex' },
-            { data: 'member' },
             { data: 'date' },
             { data: 'amount' },
+            { data: 'transaction_id' },
+            { data: 'qr_file' },
+            { data: 'comment' },
             { data: 'status' },
             { data: 'actions', orderable:false, searchable:false }
         ],
-        order: [[3, 'desc']],
+        order: [[2, 'desc']],
         pageLength: 25,
         lengthMenu: [[10,25,50,100,-1],[10,25,50,100,'All']],
         columnDefs: [
-            { orderable:false, searchable:false, targets:[0,6] }
+            { orderable:false, searchable:false, targets:[0,7] }
         ],
         
         buttons: [
@@ -485,22 +390,11 @@ $(document).ready(function () {
                 extend:'excelHtml5',
                 text:'<i class="bi bi-file-earmark-excel me-1"></i>Excel',
                 className:'buttons-excel',
-                title:'Send Smart Wallet Request History',
+                title:'Company Payment Submission Request History',
                 exportOptions:{ 
-                    columns:[1,2,3,4,5] ,
+                    columns:[0,1,2,3,5,6] ,
                     format: {
                         body: function (data, row, column, node) {
-
-                            // Column 2 (index 1 or 2 depending on your table setup)
-                            if (column === 1) {
-
-                                // Convert HTML to text
-                                let name = $(node).find('div').eq(0).text().trim();
-                                let memberId = $(node).find('div').eq(1).text().trim();
-
-                                return `${name} - ${memberId}`;
-                            }
-
                             return $(node).text().trim();
                         }
                     }
@@ -510,24 +404,13 @@ $(document).ready(function () {
                 extend:'pdfHtml5',
                 text:'<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
                 className:'buttons-pdf',
-                title:'Send Smart Wallet Request History',
+                title:'Company Payment Submission Request History',
                 orientation:'landscape',
                 pageSize:'A4',
                 exportOptions:{ 
-                    columns:[1,2,3,4,5] ,
+                    columns:[0,1,2,3,5,6] ,
                     format: {
                         body: function (data, row, column, node) {
-
-                            // Column 2 (index 1 or 2 depending on your table setup)
-                            if (column === 1) {
-
-                                // Convert HTML to text
-                                let name = $(node).find('div').eq(0).text().trim();
-                                let memberId = $(node).find('div').eq(1).text().trim();
-
-                                return `${name} - ${memberId}`;
-                            }
-
                             return $(node).text().trim();
                         }
                     }
@@ -537,22 +420,11 @@ $(document).ready(function () {
                 extend:'print',
                 text:'<i class="bi bi-printer me-1"></i>Print',
                 className:'buttons-print',
-                title:'Send Smart Wallet Request History',
+                title:'Company Payment Submission Request History',
                 exportOptions:{ 
-                    columns:[1,2,3,4,5] ,
+                    columns:[0,1,2,3,5,6] ,
                     format: {
                         body: function (data, row, column, node) {
-
-                            // Column 2 (index 1 or 2 depending on your table setup)
-                            if (column === 1) {
-
-                                // Convert HTML to text
-                                let name = $(node).find('div').eq(0).text().trim();
-                                let memberId = $(node).find('div').eq(1).text().trim();
-
-                                return `${name} - ${memberId}`;
-                            }
-
                             return $('<div>').html(data).text().trim();
                         }
                     }
@@ -571,11 +443,11 @@ $(document).ready(function () {
             "<'row'<'col-sm-12'tr>>" +
             "<'row mt-2'<'col-sm-5'i><'col-sm-7 d-flex justify-content-end'p>>",
     });
-    // ---------------------------------------------- END SECTION DATABASE CALL , EXCEL , PDF DOWNLOAD , SEARCHING , PRINT ----------------------------------
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // ------------------------ END SECTION DATABASE CALL , EXCEL , PDF DOWNLOAD , SEARCHING , PRINT ----------------------------------
+    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
     
-    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-    // ---------------------------------------------------------START MEMBER NAME SEARCH------------------------------------------------------------------------------
+    // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+    // ---------------------------START MEMBER NAME SEARCH------------------------------------------------------------------------------
     $(document).on('keyup', '#memberSearchInputForWalletRequestSend', function () {
 
         let keyword = $(this).val().toLowerCase().trim();

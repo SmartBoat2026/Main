@@ -32,10 +32,6 @@
                        style="font-size:13px;width:100%;">
                     <thead style="background:#2c5f2e;color:#fff;">
                         <tr>
-                            <th style="width:40px;text-align:center;">
-                                <input type="checkbox" id="selectAll"
-                                       style="cursor:pointer;width:15px;height:15px;">
-                            </th>
                             <th>#</th>
                             <th>Member</th>
                             <th>Date &amp; Time</th>
@@ -54,8 +50,8 @@
     
     
 @endsection
-@include('member.smartwallet.chatbox')
-@include('member.smartwallet.chat-script')
+@include('chatbox')
+@include('chat-script')
 @push('scripts')
 
 <script>
@@ -68,7 +64,6 @@ $(document).ready(function () {
         serverSide: false,
         ajax: "{{ route('member.smartwallet.userToUser.receiverList') }}",
         columns: [
-            { data: 'checkbox', orderable:false, searchable:false },
             { data: 'DT_RowIndex' },
             { data: 'member' },
             { data: 'date' },
@@ -76,11 +71,11 @@ $(document).ready(function () {
             { data: 'status' },
             { data: 'actions', orderable:false, searchable:false }
         ],
-        order: [[3, 'desc']],
+        order: [[2, 'desc']],
         pageLength: 25,
         lengthMenu: [[10,25,50,100,-1],[10,25,50,100,'All']],
         columnDefs: [
-            { orderable:false, searchable:false, targets:[0,6] }
+            { orderable:false, searchable:false, targets:[0,5] }
         ],
         
         buttons: [
@@ -88,9 +83,9 @@ $(document).ready(function () {
                 extend:'excelHtml5',
                 text:'<i class="bi bi-file-earmark-excel me-1"></i>Excel',
                 className:'buttons-excel',
-                title:'Send Smart Wallet Request History',
+                title:'Receiving Smart Wallet History',
                 exportOptions:{ 
-                    columns:[1,2,3,4,5] ,
+                    columns:[0,1,2,3,4] ,
                     format: {
                         body: function (data, row, column, node) {
 
@@ -113,11 +108,11 @@ $(document).ready(function () {
                 extend:'pdfHtml5',
                 text:'<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
                 className:'buttons-pdf',
-                title:'Send Smart Wallet Request History',
+                title:'Receiving Smart Wallet History',
                 orientation:'landscape',
                 pageSize:'A4',
                 exportOptions:{ 
-                    columns:[1,2,3,4,5] ,
+                    columns:[0,1,2,3,4] ,
                     format: {
                         body: function (data, row, column, node) {
 
@@ -140,9 +135,9 @@ $(document).ready(function () {
                 extend:'print',
                 text:'<i class="bi bi-printer me-1"></i>Print',
                 className:'buttons-print',
-                title:'Send Smart Wallet Request History',
+                title:'Receiving Smart Wallet History',
                 exportOptions:{ 
-                    columns:[1,2,3,4,5] ,
+                    columns:[0,1,2,3,4] ,
                     format: {
                         body: function (data, row, column, node) {
 

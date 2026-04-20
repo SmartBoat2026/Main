@@ -12,7 +12,7 @@ class SmartwalletController extends Controller
 {
     public function smartwallet()
     {
-        $reports = DB::table('transaction as t')
+        $reports = DB::table('transactions as t')
             ->leftJoin('manage_reports as m', 'm.memberID', '=', 't.member_id')
             ->select(
                 't.*',

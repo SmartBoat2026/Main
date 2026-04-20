@@ -11,7 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('company_payments', function (Blueprint $table) {
+        Schema::create('smart_wallet_company_payments', function (Blueprint $table) {
+
+            $table->id();
+
             $table->unsignedBigInteger('sender_member_id');
             $table->unsignedBigInteger('admin_member_id')->nullable();
 
@@ -20,10 +23,23 @@ return new class extends Migration
             $table->string('qr_file')->nullable();
             $table->string('transaction_id')->nullable();
 
-            $table->tinyInteger('status')->default(1)->comment('1=pending, 2=active, 3=rejected');
+            $table->tinyInteger('status')
+                ->default(1)
+                ->comment('1=pending, 2=active, 3=rejected');
 
             $table->text('comment')->nullable();
 
+            $table->timestamps();
+
+            $table->foreign('sender_member_id')
+                ->references('member_id')
+                ->on('manage_reports')
+                ->onDelete('cascade');
+
+            $table->foreign('admin_member_id')
+                ->references('member_id')
+                ->on('manage_reports')
+                ->onDelete('set null');
         });
     }
 

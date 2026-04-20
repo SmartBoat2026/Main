@@ -1,27 +1,41 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;  
 use Illuminate\Http\Request;
 use App\Models\Chat;
 use App\Models\ManageReport;
+use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller
 {
+    public function sessionId()
+    {
+        if (session()->has('admin_logged_in')) {
+            $sessionId = session('admin_id');
+            return ManageReport::where('member_id', $sessionId)->value('memberID');;
+        }
+
+        if (session()->has('member_logged_in')) {
+            return session('member_memberID');
+        }
+
+        return null;
+    }
     public function loadChatname(Request $request)
     {
         $sender = $request->sender;
         $receiver = $request->receiver;
 
-        $senderUser = ManageReport::where('memberId', $sender)->first();
-        $receiverUser = ManageReport::where('memberId', $receiver)->first();
+        $senderUser = ManageReport::where('member_id', $sender)->first();
+        $receiverUser = ManageReport::where('member_id', $receiver)->first();
 
         $senderName = $senderUser ? ucwords(strtolower($senderUser->name)) : 'Unknown';
         $receiverName = $receiverUser ? ucwords(strtolower($receiverUser->name)) : 'Unknown';
 
-        $sessionId = session('member_memberID');
-
-        $chatUserName = ($sessionId == $sender) ? $receiverName : $senderName;
+        $sessionId = $this->sessionId();
+        $session_member_id = ManageReport::where('memberID', $sessionId)->value('member_id');
+        $chatUserName = ($session_member_id == $sender) ? $receiverName : $senderName;
 
         return response()->json([
             'success' => true,
@@ -33,7 +47,8 @@ class ChatController extends Controller
         $sender = $request->sender;
         $receiver = $request->receiver;
 
-        $sessionId = (string) session('member_memberID');
+        $sessionId = (string) $this->sessionId();
+        $session_member_id = ManageReport::where('memberID', $sessionId)->value('member_id');
 
         $messages = Chat::where(function ($q) use ($sender, $receiver) {
                 $q->where('sender_member_id', $sender)
@@ -62,7 +77,7 @@ class ChatController extends Controller
 
             $time = date('h:i A', strtotime($msg->created_at));
 
-            if ((string)$msg->sender_member_id === $sessionId) {
+            if ((string)$msg->sender_member_id === (string)$session_member_id){
 
                 $html .= '
                     <div style="display:flex;justify-content:flex-end;margin-bottom:5px;">

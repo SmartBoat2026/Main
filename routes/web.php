@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductPurchaseController;
 use App\Http\Controllers\Admin\SmartwalletController;
 use App\Http\Controllers\Admin\StpscheduleController;
+use App\Http\Controllers\Admin\SmartWalletMemberRequestController;
 
 // ── User Folder Controllers ───────────────────────────────────────────────────
 use App\Http\Controllers\User\MemberController;
@@ -24,10 +25,11 @@ use App\Http\Controllers\User\MemberProductPurchaseController;
 use App\Http\Controllers\User\MemberstpschedulesController;
 use App\Http\Controllers\User\MemberPaymentController;
 use App\Http\Controllers\User\SmartWallet\UserToUsersController;
-use App\Http\Controllers\User\ChatController;
 use App\Http\Controllers\User\SmartWallet\CompanyPaymentController;
 
+// ─── Common Controllers ──────────────────────────────────────────────────
 
+use App\Http\Controllers\ChatController;
 // ─── Root: redirect to login ──────────────────────────────────────────────────
 Route::get('/', function () {
     if (session()->has('admin_logged_in'))  return redirect('/admin-page');
@@ -112,6 +114,17 @@ Route::middleware('admin.auth')->group(function () {
     Route::get('/bonus',                                [BonusController::class, 'index'])->name('bonus.index');
     Route::get('/adminpassivebonus',                    [AdminpassivebonusController::class, 'passivebonus'])->name('adminpassivebonus');
 
+
+    // ── Additional admin routes can be added here ─────────────────────────────────
+    Route::get('/smart-wallet/memberRequest', [SmartWalletMemberRequestController::class, 'memberRequest'])->name('smartwallet.memberRequest.index');
+    Route::get('/smart-wallet/memberRequest/load-model-open-data', [SmartWalletMemberRequestController::class, 'loadModelOpenData'])->name('smartwallet.memberRequest.loadModelOpenData');
+    Route::get('/smart-wallet/memberRequest/list', [SmartWalletMemberRequestController::class, 'listData'])->name('smartwallet.memberRequest.list');
+    Route::post('/smart-wallet/memberRequest/statusUpdate/{id}', [SmartWalletMemberRequestController::class, 'statusUpdate'])->name('smartwallet.memberRequest.statusUpdate');
+
+    // ── Chat ───────────────────────────────────────────────────────────
+    Route::get('/chat/load-name', [ChatController::class, 'loadChatName'])->name('chat.load.name');
+    Route::get('/chat/load-history', [ChatController::class, 'loadChatHistory'])->name('chat.load.history');
+    Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
 });
 
 
@@ -178,14 +191,17 @@ Route::middleware('member.auth')->prefix('member')->name('member.')->group(funct
     Route::get('/smart-wallet/receiver',    [UserToUsersController::class, 'receiver'])->name('smartwallet.userToUser.receiver');
     Route::get('/smart-wallet/receiverList', [UserToUsersController::class, 'receiverList'])->name('smartwallet.userToUser.receiverList');
    
-        // ── Via Company Payment Submission───────────────────────────────────────────────────────────
+    // ── Via Company Payment Submission───────────────────────────────────────────────────────────
     Route::get('/smart-wallet/company-payment', [CompanyPaymentController::class, 'companyPayment'])->name('smartwallet.companyPayment.index');
+    Route::get('/smart-wallet/company-payment/load-model-open-data', [CompanyPaymentController::class, 'loadModelOpenData'])->name('smartwallet.companyPayment.loadModelOpenData');
+    Route::get('/smart-wallet/company-payment/list', [CompanyPaymentController::class, 'listData'])->name('smartwallet.companyPayment.list');
     Route::post('/smart-wallet/company-payment/store', [CompanyPaymentController::class, 'store'])->name('smartwallet.companyPayment.store');
     
-
-
     // ── Chat ───────────────────────────────────────────────────────────
     Route::get('/chat/load-name', [ChatController::class, 'loadChatName'])->name('chat.load.name');
     Route::get('/chat/load-history', [ChatController::class, 'loadChatHistory'])->name('chat.load.history');
     Route::post('/chat/send', [ChatController::class, 'sendMessage'])->name('chat.send');
+
+    
 });
+

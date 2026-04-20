@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:12px; overflow:hidden;">
 
-            {{-- HEADER --}}
+            
             <div class="modal-header" style="background:#075e54;color:#fff;padding:10px 15px;">
                 <div style="display:flex;align-items:center;gap:10px;">
 
@@ -21,7 +21,7 @@
                         data-bs-dismiss="modal"></button>
             </div>
 
-            {{-- BODY (EMPTY - JS will load here) --}}
+            
             <div class="modal-body"
                  id="chatMessages"
                  style="background:#ece5dd;height:400px;overflow-y:auto;padding:10px;">
@@ -32,7 +32,7 @@
 
             </div>
 
-            {{-- FOOTER --}}
+            
             <div class="modal-footer"
               style="background:#f0f0f0;display:flex;gap:8px;padding:10px;align-items:center;">
 
@@ -54,10 +54,14 @@
     </div>
 </div>
 
-@push('scripts')
+
+<?php
+    $chatPrefix = session()->has('member_logged_in') ? 'member.' : '';
+?>
+<?php $__env->startPush('scripts'); ?>
 <script>
-    const chatLoadUrl = "{{ route('member.chat.load.name') }}";
-    const chatLoadHistoryUrl = "{{ route('member.chat.load.history') }}";
-    const chatSendUrl = "{{ route('member.chat.send') }}";
+    const chatLoadUrl = "<?php echo e(route($chatPrefix . 'chat.load.name')); ?>";
+    const chatLoadHistoryUrl = "<?php echo e(route($chatPrefix . 'chat.load.history')); ?>";
+    const chatSendUrl = "<?php echo e(route($chatPrefix . 'chat.send')); ?>";
 </script>
-@endpush
+<?php $__env->stopPush(); ?><?php /**PATH F:\xampp\htdocs\SmartBoat\ecosystemnew\resources\views/chatbox.blade.php ENDPATH**/ ?>

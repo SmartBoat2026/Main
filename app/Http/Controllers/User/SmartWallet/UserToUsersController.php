@@ -27,9 +27,10 @@ class UserToUsersController extends Controller
     public function senderList(Request $request)
     {
         $senderMemberId = session('member_memberID');
+        $sender_member_id = ManageReport::where('memberID', $senderMemberId)->value('member_id');
 
         $query = SmartWalletUserToUser::with('receiver')
-            ->where('sender_member_id', $senderMemberId)
+            ->where('sender_member_id', $sender_member_id)
             ->latest();
 
         // AJAX check
@@ -46,7 +47,7 @@ class UserToUsersController extends Controller
         $data = collect($records)->map(function ($row,$index) {
 
             return [
-                'checkbox' => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">',
+                // 'checkbox' => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">',
                 'DT_RowIndex' => $index + 1,
                 'member' => "
                         <div style='font-size:13px;font-weight:700;color:#1a3a6b;line-height:1.3;'>
@@ -149,7 +150,7 @@ class UserToUsersController extends Controller
 
         $senderMemberId = session('member_memberID');
         $receiverMemberId = $request->member_id;
-
+       
         if ($senderMemberId == $receiverMemberId) {
             return back()->withErrors([
                 'member_id' => 'You cannot send wallet balance to yourself.'
@@ -177,9 +178,12 @@ class UserToUsersController extends Controller
         DB::beginTransaction();
 
         try {
+             $sender_member_id = ManageReport::where('memberID', $senderMemberId)->value('member_id');
+             $receiver_member_id = ManageReport::where('memberID', $receiverMemberId)->value('member_id');
+
             SmartWalletUserToUser::create([
-                'sender_member_id'   => $senderMemberId,
-                'receiver_member_id' => $receiverMemberId,
+                'sender_member_id'   => $sender_member_id,
+                'receiver_member_id' => $receiver_member_id,
                 'wallet_balance'     => $walletBalance,
                 'request_balance'    => $requestAmount,
                 'status'             => 5, // confirm
@@ -309,10 +313,11 @@ class UserToUsersController extends Controller
     
     public function receiverList(Request $request)
     {
-        $senderMemberId = session('member_memberID');
+        $receiverMemberId = session('member_memberID');
+        $receiver_member_id = ManageReport::where('memberID', $receiverMemberId)->value('member_id');
 
         $query = SmartWalletUserToUser::with('sender')
-            ->where('receiver_member_id', $senderMemberId)
+            ->where('receiver_member_id', $receiver_member_id)
             ->latest();
 
         // AJAX check
@@ -329,7 +334,7 @@ class UserToUsersController extends Controller
         $data = collect($records)->map(function ($row,$index) {
 
             return [
-                'checkbox' => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">',
+                
                 'DT_RowIndex' => $index + 1,
                 'member' => "
                         <div style='font-size:13px;font-weight:700;color:#1a3a6b;line-height:1.3;'>
