@@ -643,7 +643,12 @@
     </div>
 
     <!-- Smart Wallet END -->
-
+    <a href="{{ route('member.memberstpschedules.index') }}"
+       class="nav-link {{ request()->routeIs('member.memberstpschedules*') ? 'active' : '' }}"
+       data-bs-title="STP Schedules">
+        <i class="bi bi-calendar2-check-fill"></i>
+        <span class="nav-label">Chat Box</span>
+    </a>
 </nav>
 
 {{-- ════ APPROVAL PENDING MODAL ════ --}}
