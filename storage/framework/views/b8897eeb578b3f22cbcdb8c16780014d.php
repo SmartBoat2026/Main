@@ -1,8 +1,6 @@
-@extends('member.layouts.app')
+<?php $__env->startSection('content'); ?>
 
-@section('content')
-
-    {{-- ===== PAGE HEADER ===== --}}
+    
     <div class="page-header">
         <div class="page-title">
             <h1>Smart Wallet Sending List</h1>
@@ -16,7 +14,7 @@
         </div>
     </div>
 
-    {{-- ===== SENDER REQUEST FORM MODAL ===== --}}
+    
     <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
@@ -24,19 +22,15 @@
                 <div class="modal-header" style="background:#1a3a6b;color:#fff;">
                     <h5 class="modal-title" id="addModalLabel"
                         style="font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;">
-<<<<<<< HEAD
-                        <i class="bi bi-receipt me-2"></i>SENDING WALLET bALANCE  
-=======
                         <i class="bi bi-receipt me-2"></i>SENDING WALLET BALANCE  
->>>>>>> Pingki
                     </h5>
                     <button type="button" class="btn-close btn-close-white"
                             data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('member.smartwallet.userToUser.store') }}" id="sendWalletBalanceRequestForm">
-                        @csrf
+                    <form method="POST" action="<?php echo e(route('member.smartwallet.userToUser.store')); ?>" id="sendWalletBalanceRequestForm">
+                        <?php echo csrf_field(); ?>
 
                         <div class="row g-3 mb-3">
 
@@ -91,7 +85,7 @@
             </div>
         </div>
     </div>
-    {{--==== TRANSACTION PASSWORD ==== --}}
+    
     <div class="modal fade" id="transactionPasswordModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -114,7 +108,7 @@
         </div>
     </div>
 
-    {{-- ===== Sent Smart Wallet History ===== --}}
+    
     <div class="card mb-4">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
              style="background:#1a3a6b;color:#fff;">
@@ -149,14 +143,9 @@
     </div>
     
 
-@endsection
-<<<<<<< HEAD
-@include('chatbox')
-@include('chat-script')
-=======
+<?php $__env->stopSection(); ?>
 
->>>>>>> Pingki
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 
 <script>
 $(document).ready(function () {
@@ -176,7 +165,7 @@ $(document).ready(function () {
 
     function loadMembers() {
         $.ajax({
-            url: "{{ route('member.smartwallet.userToUser.members') }}",
+            url: "<?php echo e(route('member.smartwallet.userToUser.members')); ?>",
             type: "GET",
             dataType: "json",
 
@@ -383,7 +372,7 @@ $(document).ready(function () {
     $('#sendWalletBalanceRequestHistoryTable').DataTable({
         processing: true,
         serverSide: false,
-        ajax: "{{ route('member.smartwallet.userToUser.senderList') }}",
+        ajax: "<?php echo e(route('member.smartwallet.userToUser.senderList')); ?>",
         columns: [
             // { data: 'checkbox', orderable:false, searchable:false },
             { data: 'DT_RowIndex' },
@@ -524,4 +513,6 @@ $(document).ready(function () {
 });
 
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('member.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH F:\xampp\htdocs\SmartBoat\ecosystemnew\Main\resources\views/member/smartwallet/sender.blade.php ENDPATH**/ ?>

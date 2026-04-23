@@ -4,39 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Panel — SmartBoatEcosystem</title>
-<<<<<<< HEAD
-    <link rel="shortcut icon" href="{{ asset('admin/assets/images/favicon.ico') }}">
+    <link rel="shortcut icon" href="<?php echo e(asset('public/admin/assets/images/favicon.ico')); ?>">
 
-    {{-- Bootstrap 5 --}}
-    <link href="{{ asset('admin/assets/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('admin/assets/css/user/styles.css') }}" rel="stylesheet">
+    
+    <link href="<?php echo e(asset('public/admin/assets/css/bootstrap.min.css')); ?>" rel="stylesheet">
+    <link href="<?php echo e(asset('public/admin/assets/css/user/styles.css')); ?>" rel="stylesheet">
 
-    {{-- Bootstrap Icons (local) --}}
-    <link href="{{ asset('admin/assets/css/admin/bootstrap-icons.css') }}" rel="stylesheet">
+    
+    <link href="<?php echo e(asset('public/admin/assets/css/admin/bootstrap-icons.css')); ?>" rel="stylesheet">
 
-    {{-- DataTables CSS --}}
-    <link href="{{ asset('admin/assets/css/admin/dataTables.bootstrap5.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('admin/assets/css/admin/buttons.dataTables.min.css') }}" rel="stylesheet">
+    
+    <link href="<?php echo e(asset('public/admin/assets/css/admin/dataTables.bootstrap5.min.css')); ?>" rel="stylesheet">
+    <link href="<?php echo e(asset('public/admin/assets/css/admin/buttons.dataTables.min.css')); ?>" rel="stylesheet">
 
-    {{-- Toastr CSS --}}
-    <link rel="stylesheet" href="{{ asset('admin/assets/toastr/toastr.min.css') }}">
-=======
-    <link rel="shortcut icon" href="{{ asset('public/admin/assets/images/favicon.ico') }}">
-
-    {{-- Bootstrap 5 --}}
-    <link href="{{ asset('public/admin/assets/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('public/admin/assets/css/user/styles.css') }}" rel="stylesheet">
-
-    {{-- Bootstrap Icons (local) --}}
-    <link href="{{ asset('public/admin/assets/css/admin/bootstrap-icons.css') }}" rel="stylesheet">
-
-    {{-- DataTables CSS --}}
-    <link href="{{ asset('public/admin/assets/css/admin/dataTables.bootstrap5.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('public/admin/assets/css/admin/buttons.dataTables.min.css') }}" rel="stylesheet">
-
-    {{-- Toastr CSS --}}
-    <link rel="stylesheet" href="{{ asset('public/admin/assets/toastr/toastr.min.css') }}">
->>>>>>> Pingki
+    
+    <link rel="stylesheet" href="<?php echo e(asset('public/admin/assets/toastr/toastr.min.css')); ?>">
 
     <style>
         *, *::before, *::after { box-sizing: border-box; }
@@ -496,7 +478,7 @@
 
 <body>
 
-{{-- ════ TOPBAR ════ --}}
+
 <header class="sb-topbar">
     <div class="sb-topbar-left">
         <button class="sb-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
@@ -512,27 +494,29 @@
     </div>
 
     <div class="sb-topbar-right">
-        @if(session('member_memberID'))
+        <?php if(session('member_memberID')): ?>
         <span class="sb-member-badge hideinmobile">
-            <i class="bi bi-person-badge me-1"></i>{{ session('member_memberID') }}
+            <i class="bi bi-person-badge me-1"></i><?php echo e(session('member_memberID')); ?>
+
         </span>
-        @endif
+        <?php endif; ?>
 
 
-        @if(isset($smartWalletBalance))
+        <?php if(isset($smartWalletBalance)): ?>
         <span class="sb-member-badge" id="selfwalletBalanceForNavBar" style="
             background: rgba(44,95,46,.35);
             border-color: rgba(77,214,156,.4);
             color: #4dd69c;">
             <i class="bi bi-wallet2 me-1"></i>
-            ₹{{ number_format($smartWalletBalance, 2) }}
+            ₹<?php echo e(number_format($smartWalletBalance, 2)); ?>
+
         </span>
-        @endif
+        <?php endif; ?>
 
 
-        <span class="sb-member-name">{{ session('member_name') }}</span>
-        <form action="{{ route('member.logout') }}" method="POST" class="m-0">
-            @csrf
+        <span class="sb-member-name"><?php echo e(session('member_name')); ?></span>
+        <form action="<?php echo e(route('member.logout')); ?>" method="POST" class="m-0">
+            <?php echo csrf_field(); ?>
             <button type="submit" class="sb-logout-btn" title="Logout">
                 <i class="bi bi-box-arrow-right"></i>
             </button>
@@ -540,23 +524,23 @@
     </div>
 </header>
 
-{{-- ════ SIDEBAR OVERLAY (mobile) ════ --}}
+
 <div class="sb-overlay" id="sidebarOverlay"></div>
 
-{{-- ════ SIDEBAR ════ --}}
+
 <nav class="sb-sidebar" id="sidebar">
 
     <div class="sb-section-title">Main</div>
 
-    <a href="{{ route('member.dashboard') }}"
-       class="nav-link {{ request()->routeIs('member.dashboard') ? 'active' : '' }}"
+    <a href="<?php echo e(route('member.dashboard')); ?>"
+       class="nav-link <?php echo e(request()->routeIs('member.dashboard') ? 'active' : ''); ?>"
        data-bs-title="Dashboard">
         <i class="bi bi-speedometer2"></i>
         <span class="nav-label">Dashboard</span>
     </a>
 
-    <a href="{{ route('member.profile') }}"
-       class="nav-link {{ request()->routeIs('member.profile') ? 'active' : '' }}"
+    <a href="<?php echo e(route('member.profile')); ?>"
+       class="nav-link <?php echo e(request()->routeIs('member.profile') ? 'active' : ''); ?>"
        data-bs-title="Profile">
         <i class="bi bi-person-circle"></i>
         <span class="nav-label">Profile</span>
@@ -569,25 +553,25 @@
 
     <div class="sb-section-title">Purchases</div>
 
-    {{-- Purchase List Dropdown --}}
+    
     <a href="#purchaselistDropdown"
-       class="nav-link {{ request()->routeIs('member.productpurchase*') ? 'active' : '' }}"
+       class="nav-link <?php echo e(request()->routeIs('member.productpurchase*') ? 'active' : ''); ?>"
        data-bs-toggle="collapse"
-       aria-expanded="{{ request()->routeIs('member.productpurchase*') ? 'true' : 'false' }}"
+       aria-expanded="<?php echo e(request()->routeIs('member.productpurchase*') ? 'true' : 'false'); ?>"
        data-bs-title="Purchase List">
         <i class="bi bi-bag-fill"></i>
         <span class="nav-label">Purchase List</span>
         <i class="bi bi-chevron-down nav-arrow"></i>
     </a>
-    <div class="collapse sub-menu {{ request()->routeIs('member.productpurchase*') ? 'show' : '' }}"
+    <div class="collapse sub-menu <?php echo e(request()->routeIs('member.productpurchase*') ? 'show' : ''); ?>"
          id="purchaselistDropdown">
-        <a href="{{ route('member.productpurchase.purchaseList', 'self') }}"
-           class="nav-link {{ request()->is('*self*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('member.productpurchase.purchaseList', 'self')); ?>"
+           class="nav-link <?php echo e(request()->is('*self*') ? 'active' : ''); ?>">
             <i class="bi bi-person-check-fill"></i>
             <span class="nav-label">Self Purchases</span>
         </a>
-        <a href="{{ route('member.productpurchase.purchaseList', 'other') }}"
-           class="nav-link {{ request()->is('*other*') ? 'active' : '' }}">
+        <a href="<?php echo e(route('member.productpurchase.purchaseList', 'other')); ?>"
+           class="nav-link <?php echo e(request()->is('*other*') ? 'active' : ''); ?>">
             <i class="bi bi-people-fill"></i>
             <span class="nav-label">Other Purchases</span>
         </a>
@@ -595,153 +579,133 @@
 
     <div class="sb-section-title">Finance</div>
 
-    <a href="{{ route('member.passivebonus') }}"
-       class="nav-link {{ request()->routeIs('member.passivebonus') ? 'active' : '' }}"
+    <a href="<?php echo e(route('member.passivebonus')); ?>"
+       class="nav-link <?php echo e(request()->routeIs('member.passivebonus') ? 'active' : ''); ?>"
        data-bs-title="Passive Bonus">
         <i class="bi bi-cash-stack"></i>
         <span class="nav-label">Passive Bonus</span>
     </a>
 
-    <a href="{{ route('member.memberstpschedules.index') }}"
-       class="nav-link {{ request()->routeIs('member.memberstpschedules*') ? 'active' : '' }}"
+    <a href="<?php echo e(route('member.memberstpschedules.index')); ?>"
+       class="nav-link <?php echo e(request()->routeIs('member.memberstpschedules*') ? 'active' : ''); ?>"
        data-bs-title="STP Schedules">
         <i class="bi bi-calendar2-check-fill"></i>
         <span class="nav-label">STP Schedules</span>
     </a>
-<<<<<<< HEAD
-=======
     <a id="smartBoatChatLink" href="#"
        class="nav-link"
        data-bs-title="Smart Boat Chat">
         <i class="bi bi-chat-dots-fill"></i>
         <span class="nav-label">Smart Boat Chat</span>
     </a>
->>>>>>> Pingki
     <!-- Smart Wallet START -->
 
     <a href="#smartWalletDropdown"
-    class="nav-link {{ request()->routeIs('member.smartwallet.*') ? 'active' : '' }}"
+    class="nav-link <?php echo e(request()->routeIs('member.smartwallet.*') ? 'active' : ''); ?>"
     data-bs-toggle="collapse"
-    aria-expanded="{{ request()->routeIs('member.smartwallet.*') ? 'true' : 'false' }}">
+    aria-expanded="<?php echo e(request()->routeIs('member.smartwallet.*') ? 'true' : 'false'); ?>">
 
         <i class="bi bi-wallet-fill"></i>
         <span class="nav-label">Smart Wallet</span>
         <i class="bi bi-chevron-down nav-arrow"></i>
     </a>
 
-    <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet.*') ? 'show' : '' }}"
+    <div class="collapse sub-menu <?php echo e(request()->routeIs('member.smartwallet.*') ? 'show' : ''); ?>"
         id="smartWalletDropdown">
 
-<<<<<<< HEAD
-=======
         <!-- PAYMENT SUBMISSION -->
-        <a href="{{ route('member.smartwallet.companyPayment.index') }}"
-        class="nav-link ps-4 {{ request()->routeIs('member.smartwallet.companyPayment.index') ? 'active' : '' }}">
+        <a href="<?php echo e(route('member.smartwallet.companyPayment.index')); ?>"
+        class="nav-link ps-4 <?php echo e(request()->routeIs('member.smartwallet.companyPayment.index') ? 'active' : ''); ?>">
 
             <i class="bi bi-building"></i>
             <span class="nav-label">Company Payment Approval</span>
         </a>
 
->>>>>>> Pingki
         <!-- USER TO USER -->
         <a href="#smartWalletUserToUserDropdown"
-        class="nav-link ps-4 {{ request()->routeIs('member.smartwallet.userToUser.*') ? 'active' : '' }}"
+        class="nav-link ps-4 <?php echo e(request()->routeIs('member.smartwallet.userToUser.*') ? 'active' : ''); ?>"
         data-bs-toggle="collapse">
 
             <i class="bi bi-wallet2"></i>
-<<<<<<< HEAD
-            <span class="nav-label">USER TO USER TRANSFER</span>
-=======
             <span class="nav-label">Peer-to-Peer Wallet Transfer</span>
->>>>>>> Pingki
             <i class="bi bi-chevron-down nav-arrow"></i>
         </a>
 
-        <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet.userToUser.*') ? 'show' : '' }}"
+        <div class="collapse sub-menu <?php echo e(request()->routeIs('member.smartwallet.userToUser.*') ? 'show' : ''); ?>"
             id="smartWalletUserToUserDropdown">
 
-            <a href="{{ route('member.smartwallet.userToUser.sender') }}"
-            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.sender') ? 'active' : '' }}">
+            <a href="<?php echo e(route('member.smartwallet.userToUser.sender')); ?>"
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.userToUser.sender') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Sent</span>
             </a>
 
-            <a href="{{ route('member.smartwallet.userToUser.receiver') }}"
-            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : '' }}">
+            <a href="<?php echo e(route('member.smartwallet.userToUser.receiver')); ?>"
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Received</span>
             </a>
 
         </div>
 
-<<<<<<< HEAD
-        <!-- PAYMENT SUBMISSION -->
-        <a href="{{ route('member.smartwallet.companyPayment.index') }}"
-        class="nav-link ps-4 {{ request()->routeIs('member.smartwallet.companyPayment.index') ? 'active' : '' }}">
-
-            <i class="bi bi-building"></i>
-            <span class="nav-label">Payment Submission</span>
-        </a>
-=======
         
 
         <!-- BUY/SELL -->
         <a href="#smartWalletBuySellDropdown"
-        class="nav-link ps-4 {{ request()->routeIs('member.smartwallet.buySell.*') ? 'active' : '' }}"
+        class="nav-link ps-4 <?php echo e(request()->routeIs('member.smartwallet.buySell.*') ? 'active' : ''); ?>"
         data-bs-toggle="collapse">
 
             <i class="bi bi-currency-exchange"></i>
             <span class="nav-label">Peer-to-Peer Wallet Buy/Sell</span>
             <i class="bi bi-chevron-down nav-arrow"></i>
         </a>
-        <div class="collapse sub-menu {{ request()->routeIs('member.smartwallet.buySell.*') ? 'show' : '' }}"
+        <div class="collapse sub-menu <?php echo e(request()->routeIs('member.smartwallet.buySell.*') ? 'show' : ''); ?>"
             id="smartWalletBuySellDropdown">
 
-            <a href="{{ route('member.smartwallet.buySell.selfSell') }}"
-            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.buySell.selfSell') ? 'active' : '' }}">
+            <a href="<?php echo e(route('member.smartwallet.buySell.selfSell')); ?>"
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.buySell.selfSell') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Self Sell Details</span>
             </a>
 
             <a href="" onclick="alert('Development in progress. Will be updated soon!')"
-            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : '' }}">
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Sent Request For Buy</span>
             </a>
 
             <a href="" onclick="alert('Development in progress. Will be updated soon!')"
-            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : '' }}">
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Received Request For Buy</span>
             </a>
-            <!-- <a href="{{ route('member.smartwallet.userToUser.receiver') }}"
-            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : '' }}">
+            <!-- <a href="<?php echo e(route('member.smartwallet.userToUser.receiver')); ?>"
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Sent Request For Buy</span>
             </a>
 
-            <a href="{{ route('member.smartwallet.userToUser.receiver') }}"
-            class="nav-link ps-5 {{ request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : '' }}">
+            <a href="<?php echo e(route('member.smartwallet.userToUser.receiver')); ?>"
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Received Request For Buy</span>
             </a> -->
 
         </div>
->>>>>>> Pingki
 
     </div>
 
     <!-- Smart Wallet END -->
-    <!-- <a href="{{ route('member.memberstpschedules.index') }}"
-       class="nav-link {{ request()->routeIs('member.memberstpschedules*') ? 'active' : '' }}"
+    <!-- <a href="<?php echo e(route('member.memberstpschedules.index')); ?>"
+       class="nav-link <?php echo e(request()->routeIs('member.memberstpschedules*') ? 'active' : ''); ?>"
        data-bs-title="STP Schedules">
         <i class="bi bi-calendar2-check-fill"></i>
         <span class="nav-label">Chat Box</span>
     </a> -->
 </nav>
 
-{{-- ════ APPROVAL PENDING MODAL ════ --}}
-@if(isset($status) && $status == 2)
+
+<?php if(isset($status) && $status == 2): ?>
 <div class="modal fade" id="approvalModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -759,89 +723,62 @@
         </div>
     </div>
 </div>
-@endif
+<?php endif; ?>
 
-{{-- ════ MAIN CONTENT ════ --}}
+
 <main class="sb-main" id="sbMain">
 
-    {{-- Flash Messages --}}
-    @if(session('success'))
+    
+    <?php if(session('success')): ?>
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill"></i>
-        {{ session('success') }}
+        <?php echo e(session('success')); ?>
+
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    @endif
+    <?php endif; ?>
 
-    @if(session('error'))
+    <?php if(session('error')): ?>
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         <i class="bi bi-exclamation-circle-fill"></i>
-        {{ session('error') }}
+        <?php echo e(session('error')); ?>
+
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    @endif
+    <?php endif; ?>
 
-    @yield('content')
+    <?php echo $__env->yieldContent('content'); ?>
 
 </main>
 
-<<<<<<< HEAD
-{{-- ════ SCRIPTS ════ --}}
-<script src="{{ asset('admin/assets/js/jquery-3.6.0.min.js') }}"></script>
-<script src="{{ asset('admin/assets/js/bootstrap.bundle.min.js') }}"></script>
+<?php echo $__env->make('smartBoatChat', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-{{-- DataTables --}}
-<script src="{{ asset('admin/assets/js/admin/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('admin/assets/js/admin/dataTables.bootstrap5.min.js') }}"></script>
 
-{{-- Export --}}
-<script src="{{ asset('admin/assets/js/admin/jszip.min.js') }}"></script>
-<script src="{{ asset('admin/assets/js/admin/pdfmake.min.js') }}"></script>
-<script src="{{ asset('admin/assets/js/admin/vfs_fonts.js') }}"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/jquery-3.6.0.min.js')); ?>"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/bootstrap.bundle.min.js')); ?>"></script>
 
-{{-- Buttons --}}
-<script src="{{ asset('admin/assets/js/admin/dataTables.buttons.min.js') }}"></script>
-<script src="{{ asset('admin/assets/js/admin/buttons.html5.min.js') }}"></script>
-<script src="{{ asset('admin/assets/js/admin/buttons.print.min.js') }}"></script>
 
-{{-- SweetAlert2 --}}
-<script src="{{ asset('admin/assets/js/admin/sweetalert2@11.js') }}"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/jquery.dataTables.min.js')); ?>"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/dataTables.bootstrap5.min.js')); ?>"></script>
 
-{{-- Toastr --}}
-<script src="{{ asset('admin/assets/toastr/toastr.min.js') }}"></script>
 
-{{-- sweetAlert --}}
-<script src="{{ asset('admin/assets/js/sweetalert2.min.js') }}"></script>
-=======
-@include('smartBoatChat')
+<script src="<?php echo e(asset('public/admin/assets/js/admin/jszip.min.js')); ?>"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/pdfmake.min.js')); ?>"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/vfs_fonts.js')); ?>"></script>
 
-{{-- ════ SCRIPTS ════ --}}
-<script src="{{ asset('public/admin/assets/js/jquery-3.6.0.min.js') }}"></script>
-<script src="{{ asset('public/admin/assets/js/bootstrap.bundle.min.js') }}"></script>
 
-{{-- DataTables --}}
-<script src="{{ asset('public/admin/assets/js/admin/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('public/admin/assets/js/admin/dataTables.bootstrap5.min.js') }}"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/dataTables.buttons.min.js')); ?>"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/buttons.html5.min.js')); ?>"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/buttons.print.min.js')); ?>"></script>
 
-{{-- Export --}}
-<script src="{{ asset('public/admin/assets/js/admin/jszip.min.js') }}"></script>
-<script src="{{ asset('public/admin/assets/js/admin/pdfmake.min.js') }}"></script>
-<script src="{{ asset('public/admin/assets/js/admin/vfs_fonts.js') }}"></script>
 
-{{-- Buttons --}}
-<script src="{{ asset('public/admin/assets/js/admin/dataTables.buttons.min.js') }}"></script>
-<script src="{{ asset('public/admin/assets/js/admin/buttons.html5.min.js') }}"></script>
-<script src="{{ asset('public/admin/assets/js/admin/buttons.print.min.js') }}"></script>
+<script src="<?php echo e(asset('public/admin/assets/js/admin/sweetalert2@11.js')); ?>"></script>
 
-{{-- SweetAlert2 --}}
-<script src="{{ asset('public/admin/assets/js/admin/sweetalert2@11.js') }}"></script>
 
-{{-- Toastr --}}
-<script src="{{ asset('public/admin/assets/toastr/toastr.min.js') }}"></script>
+<script src="<?php echo e(asset('public/admin/assets/toastr/toastr.min.js')); ?>"></script>
 
-{{-- sweetAlert --}}
-<script src="{{ asset('public/admin/assets/js/sweetalert2.min.js') }}"></script>
->>>>>>> Pingki
+
+<script src="<?php echo e(asset('public/admin/assets/js/sweetalert2.min.js')); ?>"></script>
 
 <script>
 (function () {
@@ -890,7 +827,7 @@
     });
 
     // Approval modal
-    @if(isset($status) && $status == 2)
+    <?php if(isset($status) && $status == 2): ?>
     document.addEventListener('DOMContentLoaded', function () {
         // new bootstrap.Modal(document.getElementById('approvalModal'), {
         //     backdrop: 'static', keyboard: false
@@ -900,16 +837,14 @@
             keyboard: false
         }).show();
     });
-    @endif
+    <?php endif; ?>
 })();
-<<<<<<< HEAD
-=======
 
 
->>>>>>> Pingki
 </script>
 
-@stack('scripts')
+<?php echo $__env->yieldPushContent('scripts'); ?>
 
 </body>
 </html>
+<?php /**PATH F:\xampp\htdocs\SmartBoat\ecosystemnew\Main\resources\views/member/layouts/app.blade.php ENDPATH**/ ?>

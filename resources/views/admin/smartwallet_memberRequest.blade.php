@@ -42,8 +42,6 @@
 
 </main>
 
-@include('chatbox')
-@include('chat-script')
 
 @push('scripts')
 

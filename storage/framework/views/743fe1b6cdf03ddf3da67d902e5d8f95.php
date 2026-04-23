@@ -1,4 +1,4 @@
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 
 let chatSender = null;
@@ -44,10 +44,7 @@ function loadChatName()
 
         
         $('.chat-user-name').text(res.chatUserName);
-<<<<<<< HEAD
-=======
         $('.chat-user-member-id').text(res.chatUserMemberID);
->>>>>>> Pingki
         $('.chat-user-avatar').text(res.chatUserName.charAt(0).toUpperCase());
         openChatModal();
         loadChatHistory();
@@ -67,9 +64,6 @@ $(document).on('click', '.message-btn', function () {
     loadChatName();    
     
 });
-<<<<<<< HEAD
-
-=======
 $(document).on('click', '#backToChatList', function () {
 
     $('#chatModal').one('hidden.bs.modal', function () {
@@ -80,7 +74,6 @@ $(document).on('click', '#backToChatList', function () {
 
     $('#chatModal').modal('hide');
 });
->>>>>>> Pingki
 /**
  * SEND MESSAGE
  */
@@ -102,7 +95,7 @@ function sendMessage(){
     }
 
     $.post(chatSendUrl, {
-        _token: '{{ csrf_token() }}',
+        _token: '<?php echo e(csrf_token()); ?>',
         sender: chatSender,
         receiver: chatReceiver,
         message: message
@@ -124,4 +117,4 @@ $(document).ready(function () {
 
 });
 </script>
-@endpush
+<?php $__env->stopPush(); ?><?php /**PATH F:\xampp\htdocs\SmartBoat\ecosystemnew\Main\resources\views/chat-script.blade.php ENDPATH**/ ?>

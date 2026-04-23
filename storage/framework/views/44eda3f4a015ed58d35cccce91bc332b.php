@@ -11,7 +11,13 @@ function openChatModal() {
     const el = document.getElementById('chatModal');
 
     if (!el) return;
+<<<<<<< HEAD
 
+=======
+    if ($('#chatListModal').hasClass('show')) {
+        $('#chatListModal').modal('hide');
+    }
+>>>>>>> Pingki
     const modal = bootstrap.Modal.getOrCreateInstance(el);
     modal.show();
 }
