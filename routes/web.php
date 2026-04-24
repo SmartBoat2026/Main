@@ -210,13 +210,17 @@ Route::middleware('member.auth')->prefix('member')->name('member.')->group(funct
     // ── Buy/Sell───────────────────────────────────────────────────────────
     Route::get('/smart-wallet/buy-sell/selfSell', [BuySellController::class, 'selfSell'])->name('smartwallet.buySell.selfSell');
     Route::post('/smart-wallet/buy-sell/selfSell-store', [BuySellController::class, 'selfSellStore'])->name('smartwallet.buySell.selfSellStore');
+    Route::post('/smart-wallet/buy-sell/selfSell-cancel/{id}', [BuySellController::class, 'selfSellCancel'])->name('smartwallet.buySell.selfSellCancel');
+    Route::get('/smart-wallet/buy-sell/selfSellShow/{id}', [BuySellController::class, 'selfSellShowData'])->name('smartwallet.buySell.selfSellShowData');
     Route::get('/smart-wallet/buy-sell/selfSelllist', [BuySellController::class, 'selfSellListData'])->name('smartwallet.buySell.selfSellListData');
     
 
-    Route::get('/smart-wallet/buy-sell/load-model-open-data', [BuySellController::class, 'loadModelOpenData'])->name('smartwallet.buySell.loadModelOpenData');
-    
-
-
+    Route::get('/smart-wallet/buy-sell/sendRequestForBuy', [BuySellController::class, 'sendRequestForBuy'])->name('smartwallet.buySell.sendRequestForBuy');
+    Route::post('/smart-wallet/buy-sell/fetchSellerData', [BuySellController::class, 'fetchSellerData'])->name('smartwallet.buySell.fetchSellerData');
+    Route::post('/smart-wallet/buy-sell/sendRequestForBuy-store', [BuySellController::class, 'sendRequestForBuyStore'])->name('smartwallet.buySell.sendRequestForBuyStore');
+    Route::get('/smart-wallet/buy-sell/showBuyRequest/{id}', [BuySellController::class, 'sendRequestForBuyShow'])->name('smartwallet.buySell.sendRequestForBuyShow');
+    Route::get('/smart-wallet/buy-sell/rfbListData', [BuySellController::class, 'rfbListData'])->name('smartwallet.buySell.rfbListData');
+   
 
     // ── Chat ───────────────────────────────────────────────────────────
     Route::get('/chat/load-name', [ChatController::class, 'loadChatName'])->name('chat.load.name');

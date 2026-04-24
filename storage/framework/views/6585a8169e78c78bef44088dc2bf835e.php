@@ -1,0 +1,389 @@
+<?php $__env->startSection('content'); ?>
+
+    
+    <div class="page-header">
+        <div class="page-title">
+            <h1>Sent Request For Buy List</h1>
+            <p>Record and track all Sent Request For Buy</p>
+        </div>
+        <div class="page-actions">
+            <a href="javascript:void(0)" class="btn-primary-custom"
+               data-bs-toggle="modal" data-bs-target="#addModal">
+                <i class="bi bi-plus-lg"></i> NEW SENT REQUEST FOR BUY
+            </a>
+        </div>
+    </div>
+
+    
+    <div class="modal fade" id="addModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <!-- HEADER (unchanged) -->
+                <div class="modal-header" style="background:#1a3a6b;color:#fff;">
+                    <h5 class="modal-title">Sent Request For Buy</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body py-2">
+
+                    <!-- FORM -->
+                    <form id="sentRequestBuy" class="mb-2">
+                        <?php echo csrf_field(); ?>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-10">
+                                <label class="form-label mb-1">Request Wallet Balance</label>
+                                <input type="number" name="wallet_balance"
+                                    id="requestWalletBalanceInput"
+                                    class="form-control form-control-sm"
+                                    placeholder="Enter amount" required>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button"
+                                        class="btn btn-primary btn-sm w-100"
+                                        id="submitSentRequestBuyBtn" disabled>
+                                    Show Sellers
+                                </button>
+                            </div>
+                        </div>
+                    
+
+                        <!-- SELLER SECTION -->
+                        <div id="sellerSection" style="display:none;">
+
+                            <!-- FILTER -->
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-12 d-flex align-items-center gap-2">
+                                    <select id="paymentFilter" name="payment_method"
+                                            class="form-select form-select-sm">
+                                        <option value="">All Payment Methods</option>
+                                        <option value="1">UPI Transfer via QR Code</option>
+                                        <option value="2">UPI Number</option>
+                                        <option value="3">Bank to Bank Transfer</option>
+                                        <option value="4">Cash to Bank Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- TABLE -->
+                            <div class="table-responsive">
+                                <table id="sellerTable"
+                                    class="table table-sm table-bordered table-hover align-middle mb-0">
+                                    <thead class="table-success">
+                                        <tr>
+                                            <th style="width:50px;">
+                                                <input type="checkbox" id="selectAll">
+                                            </th>
+                                            <th>Sell ID</th>
+                                            <th>Seller Name</th>
+                                            <th>Mobile Number</th>
+                                            <th>Payment Method</th>
+                                            <th>Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+
+                <!-- FOOTER (unchanged) -->
+                <div class="modal-footer">
+                    <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary btn-sm" id="sendRequestBtn" style="display:none;">
+                        Send Request
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    
+
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
+             style="background:#1a3a6b;color:#fff;">
+            <span><i class="bi bi-clock-history me-2"></i>Sent Request For Buy List </span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive p-3">                
+
+                <table id="sentRfbHistoryTable"
+                       class="table table-bordered mb-0"
+                       style="font-size:13px;width:100%;">
+                    <thead style="background:#2c5f2e;color:#fff;">
+                        <tr>
+                            <th>#</th>
+                            <th>RFB ID</th>
+                            <th>Requested Wallet Balance</th>
+                            <th>RFB Date &amp; Time</th>
+                            <th>Total No of Sellers</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startPush('scripts'); ?>
+
+<script>
+$(document).ready(function () {   
+    $('#addModal').on('show.bs.modal', function () {
+        $('#sentRequestBuy')[0].reset();
+    });
+    function checkForm() {
+        let walletBalance = $('#requestWalletBalanceInput').val().trim();
+        let submitBtn = $('#submitSentRequestBuyBtn');
+
+        let isValid =
+            walletBalance !== '' &&
+            !isNaN(walletBalance) &&
+            parseFloat(walletBalance) > 0;
+
+        submitBtn.prop('disabled', !isValid);
+    }
+    // Page load par check
+    checkForm();
+
+    // input events
+    $('#requestWalletBalanceInput').on('keyup', function () {
+        checkForm();
+    });
+
+        
+    $('#submitSentRequestBuyBtn').on('click', function () {
+
+        let form = $('#sentRequestBuy');
+
+        $.ajax({
+            url: "<?php echo e(route('member.smartwallet.buySell.fetchSellerData')); ?>",
+            type: "POST",
+            data: form.serialize(),
+
+            success: function (res) {
+
+                // show table section
+                $('#sellerSection').show();
+                $('#sendRequestBtn').show();
+                $('#selectAll').prop('checked', false);
+                $('#sendRequestBtn').prop('disabled', true);
+                loadSellerTable(res.data);
+            },
+
+            error: function (xhr) {
+                Swal.fire('Error', xhr.responseJSON?.message || 'Error', 'error');
+            }
+        });
+    });
+    
+    $('#sentRfbHistoryTable').DataTable({
+        processing: true,
+        serverSide: false,
+        ajax: "<?php echo e(route('member.smartwallet.buySell.rfbListData')); ?>",
+        columns: [
+            { data: 'DT_RowIndex' },
+            { data: 'rfb_id' },
+            { data: 'amount' },
+            { data: 'created_at' },
+            { data: 'no_of_sellers' },
+            { data: 'status' },
+            { data: 'actions' }
+        ],
+        order: [[3, 'desc']],
+        pageLength: 25,
+        lengthMenu: [[10,25,50,100,-1],[10,25,50,100,'All']],
+        columnDefs: [
+            { orderable:false, searchable:false, targets:[0,6] }
+        ],
+        
+        buttons: [
+            {
+                extend:'excelHtml5',
+                text:'<i class="bi bi-file-earmark-excel me-1"></i>Excel',
+                className:'buttons-excel',
+                title:'Request For Buy History',
+                exportOptions:{ 
+                    columns:[0,1,2,3,4,5] ,
+                    format: {
+                        body: function (data, row, column, node) {
+                            return $(node).text().trim();
+                        }
+                    }
+                }
+            },
+            {
+                extend:'pdfHtml5',
+                text:'<i class="bi bi-file-earmark-pdf me-1"></i>PDF',
+                className:'buttons-pdf',
+                title:'Request For Buy History',
+                orientation:'landscape',
+                pageSize:'A4',
+                exportOptions:{ 
+                    columns:[0,1,2,3,4,5] ,
+                    format: {
+                        body: function (data, row, column, node) {
+                            return $(node).text().trim();
+                        }
+                    }
+                }
+            },
+            {
+                extend:'print',
+                text:'<i class="bi bi-printer me-1"></i>Print',
+                className:'buttons-print',
+                title:'Request For Buy History',
+                exportOptions:{ 
+                    columns:[0,1,2,3,4,5] ,
+                    format: {
+                        body: function (data, row, column, node) {
+                            return $('<div>').html(data).text().trim();
+                        }
+                    }
+                }
+            }
+        ],
+        language:{
+            search:'<i class="bi bi-search"></i>',
+            searchPlaceholder:'Search requests…',
+            lengthMenu:'Show _MENU_ entries',
+            info:'Showing _START_ to _END_ of _TOTAL_ records',
+            infoEmpty:'No records found',
+            paginate:{ previous:'‹', next:'›' }
+        },
+        dom:"<'row mb-2'<'col-sm-4'l><'col-sm-4'B><'col-sm-4 d-flex justify-content-end'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row mt-2'<'col-sm-5'i><'col-sm-7 d-flex justify-content-end'p>>",
+    });
+       
+    function loadSellerTable(data) {
+
+        if ($.fn.DataTable.isDataTable('#sellerTable')) {
+            $('#sellerTable').DataTable().clear().destroy();
+        }
+
+        $('#sellerTable').DataTable({
+            data: data,
+            columns: [
+                { data: 'checkbox'},
+                { data: 'sell_id' },
+                { data: 'name' },
+                { data: 'mobile_number' },
+                { data: 'payment_method' },
+                { data: 'show_wallet_balance' }
+            ]
+        });
+        let checked = $('.row-checkbox:checked').length;
+        $('#sendRequestBtn').prop('disabled', checked === 0);
+    }
+    $('#paymentFilter').on('change', function () {
+        $('#sellerSearch').val('');
+        $('#submitSentRequestBuyBtn').trigger('click');
+    });
+    // Select All
+    $(document).on('change', '#selectAll', function () {
+        $('.row-checkbox').prop('checked', $(this).prop('checked'));
+        $('#sendRequestBtn').prop('disabled', $('.row-checkbox:checked').length === 0);
+    });
+
+    // Individual checkbox change
+    $(document).on('change', '.row-checkbox', function () {
+        let total = $('.row-checkbox').length;
+        let checked = $('.row-checkbox:checked').length;
+
+        $('#selectAll').prop('checked', total === checked);
+        $('#sendRequestBtn').prop('disabled', checked === 0);
+    });
+
+
+    $('#sendRequestBtn').on('click', function () {
+        let selected = [];
+        let amount = $('#requestWalletBalanceInput').val();
+        if (!amount || amount <= 0) {
+            Swal.fire('Error', 'Please enter valid amount', 'error');
+            return;
+        }
+        $('.row-checkbox:checked').each(function () {
+            selected.push($(this).val());
+        });
+        if (selected.length === 0) {
+            Swal.fire('Error', 'Please select at least one seller', 'error');
+            return;
+        }
+        $.ajax({
+            url: "<?php echo e(route('member.smartwallet.buySell.sendRequestForBuyStore')); ?>",
+            type: "POST",
+            data: {
+                _token: "<?php echo e(csrf_token()); ?>",
+                sellers: selected,
+                amount: amount
+            },
+            success: function (res) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    html: res.message
+                });
+
+                $('#addModal').modal('hide');
+                $('#sellerTable tbody').html('');
+                $('#requestWalletBalanceInput').val('');
+                $('#sellerSection').hide();
+                $('#sendRequestBtn').hide();
+                $('#sentRfbHistoryTable').DataTable().ajax.reload();
+            },
+            error: function () {
+                Swal.fire('Error', 'Something went wrong', 'error');
+            }
+        });
+    });
+      
+    $(document).on('click', '.edit-btn', function () {
+    let rfbId = $(this).data('rfb-id');
+        $.ajax({
+            url: "<?php echo e(route('member.smartwallet.buySell.sendRequestForBuyShow', ':id')); ?>".replace(':id', rfbId),
+            type: "GET",
+
+            success: function (res) {
+                $('#addModal').modal('show');
+                // set amount
+                $('#requestWalletBalanceInput').val(res.amount);
+
+                // show section
+                $('#sellerSection').show();
+                $('#sendRequestBtn').show();
+
+                // load table with checked sellers
+                loadSellerTable(res.data);
+
+                // store edit id
+                $('#edit_rfb_id').remove();
+                $('#sentRequestBuy').append(
+                    '<input type="hidden" id="edit_rfb_id" name="edit_rfb_id" value="'+rfbId+'">'
+                );
+
+                
+            }
+        });
+    });
+
+        
+
+});
+
+</script>
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('member.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH F:\xampp\htdocs\SmartBoat\ecosystemnew\Main\resources\views/member/smartwallet/sendRequestForBuy.blade.php ENDPATH**/ ?>

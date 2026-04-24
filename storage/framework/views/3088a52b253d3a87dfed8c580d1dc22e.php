@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Panel — SmartBoatEcosystem</title>
     <link rel="shortcut icon" href="<?php echo e(asset('public/admin/assets/images/favicon.ico')); ?>">
@@ -668,8 +669,8 @@
                 <span class="nav-label">Self Sell Details</span>
             </a>
 
-            <a href="" onclick="alert('Development in progress. Will be updated soon!')"
-            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.userToUser.receiver') ? 'active' : ''); ?>">
+            <a href="<?php echo e(route('member.smartwallet.buySell.sendRequestForBuy')); ?>"
+            class="nav-link ps-5 <?php echo e(request()->routeIs('member.smartwallet.buySell.sendRequestForBuy') ? 'active' : ''); ?>">
                 <i class="bi bi-person"></i>
                 <span class="nav-label">Sent Request For Buy</span>
             </a>

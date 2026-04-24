@@ -1,8 +1,6 @@
-@extends('member.layouts.app')
+<?php $__env->startSection('content'); ?>
 
-@section('content')
-
-    {{-- ===== PAGE HEADER ===== --}}
+    
     <div class="page-header">
         <div class="page-title">
             <h1>Smart Wallet Self Selling List</h1>
@@ -16,7 +14,7 @@
         </div>
     </div>
 
-    {{-- ===== SENDER REQUEST FORM MODAL ===== --}}
+    
     <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
             <div class="modal-content">
@@ -31,8 +29,8 @@
                 </div>
 
                 <div class="modal-body">
-                    <form method="POST" action="{{ route('member.smartwallet.buySell.selfSellStore') }}" id="sellWalletBalanceForm">
-                        @csrf
+                    <form method="POST" action="<?php echo e(route('member.smartwallet.buySell.selfSellStore')); ?>" id="sellWalletBalanceForm">
+                        <?php echo csrf_field(); ?>
 
                         <div class="row g-3 mb-3">
 
@@ -75,7 +73,7 @@
     </div>
     
 
-    {{-- ===== Sell Wallet History ===== --}}
+    
     <div class="card mb-4">
         <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2"
              style="background:#1a3a6b;color:#fff;">
@@ -109,9 +107,9 @@
     </div>
     
 
-@endsection
+<?php $__env->stopSection(); ?>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 
 <script>
 $(document).ready(function () {   
@@ -214,7 +212,7 @@ $(document).ready(function () {
     $('#sellWalletBalanceRequestHistoryTable').DataTable({
         processing: true,
         serverSide: false,
-        ajax: "{{ route('member.smartwallet.buySell.selfSellListData') }}",
+        ajax: "<?php echo e(route('member.smartwallet.buySell.selfSellListData')); ?>",
         columns: [
             { data: 'DT_RowIndex' },
             { data: 'sell_id' },
@@ -312,7 +310,7 @@ $(document).ready(function () {
             if (result.isConfirmed) {
 
                 $.ajax({
-                    url: "{{ route('member.smartwallet.buySell.selfSellCancel', ['id' => ':id']) }}".replace(':id', sellId),
+                    url: "<?php echo e(route('member.smartwallet.buySell.selfSellCancel', ['id' => ':id'])); ?>".replace(':id', sellId),
                     type: "POST",
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content')
@@ -356,7 +354,7 @@ $(document).ready(function () {
             if (result.isConfirmed) {
 
                 $.ajax({
-                    url: "{{ route('member.smartwallet.buySell.selfSellStore') }}",
+                    url: "<?php echo e(route('member.smartwallet.buySell.selfSellStore')); ?>",
                     type: "POST",
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content'),
@@ -402,7 +400,7 @@ $(document).ready(function () {
         let id = $(this).data('sell-history-id');
 
         $.ajax({
-            url: "{{ route('member.smartwallet.buySell.selfSellShowData', ['id' => ':id']) }}".replace(':id', id),
+            url: "<?php echo e(route('member.smartwallet.buySell.selfSellShowData', ['id' => ':id'])); ?>".replace(':id', id),
             type: "GET",
             success: function (res) {
 
@@ -440,4 +438,6 @@ $(document).ready(function () {
 });
 
 </script>
-@endpush
+<?php $__env->stopPush(); ?>
+
+<?php echo $__env->make('member.layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH F:\xampp\htdocs\SmartBoat\ecosystemnew\Main\resources\views/member/smartwallet/selfSell.blade.php ENDPATH**/ ?>

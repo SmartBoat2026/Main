@@ -12,6 +12,7 @@ class SellWalletHistory extends Model
     protected $table = 'sell_wallet_histories';
 
     protected $fillable = [
+        'sell_id',
         'member_id',
         'show_wallet_balance',
         'total_sell_wallet_balance',
@@ -29,5 +30,9 @@ class SellWalletHistory extends Model
     public function member()
     {
         return $this->belongsTo(ManageReport::class, 'member_id', 'member_id');
+    }
+    public function memberDetail()
+    {
+        return $this->belongsTo(MemberDetail::class, 'member_id', 'member_id');
     }
 }

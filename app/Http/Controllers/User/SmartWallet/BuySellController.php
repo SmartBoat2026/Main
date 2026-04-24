@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ManageReport;
 use App\Models\SellWalletHistory;
+use App\Models\MemberDetail;
+use App\Models\Rfb;
+use App\Models\RfbSeller;
+use Illuminate\Support\Facades\DB;
+
 
 class BuySellController extends Controller
 {
@@ -37,8 +42,46 @@ class BuySellController extends Controller
                 'message' => 'Insufficient smart wallet balance'
             ], 422);
         }
-
+        $editId = $request->input('edit_id');
+        if ($editId) {
+            $row = SellWalletHistory::find($editId);
+            if (!$row) {
+                return response()->json(['message' => 'Data not found'], 404);
+            }
+            // RULE: wallet balance validation
+            if ($request->wallet_balance > $row->total_sell_wallet_balance && $row->total_sell_wallet_balance > 0) {
+                return response()->json([
+                    'message' => 'Show wallet balance cannot exceed total sell wallet balance'
+                ], 422);
+            }
+            // RULE: check RfbSeller relation
+            $hasSeller = RfbSeller::where('sell_history_id', $editId)->where('status', 1)->exists();
+            if ($hasSeller && $request->payment_method != $row->payment_method) {
+                return response()->json([
+                    'message' => 'Payment method cannot be changed because Buyer Request already exists'
+                ], 422);
+            }
+            $row->update([
+                'show_wallet_balance' => $request->wallet_balance,
+                'mobile_number' => $request->mobile_number,
+                'payment_method' => $request->payment_method, 
+            ]);
+            return response()->json([
+                'message' => $row->sell_id . ' updated successfully'
+            ]);
+        }
+        $row=SellWalletHistory::where('member_id', $userData->member_id)
+            ->where('status', 1)
+            ->first();
+        if($row){
+            return response()->json([
+                'message' => 'You already have an active self-sell details. Please cancel/close it before creating a new one.'
+            ], 422);
+        }
+        $count=SellWalletHistory::where('member_id', $userData->member_id)->count();
+        $sellId='SELL-' . session('member_memberID') . '-' . str_pad($count + 1, 4, '0', STR_PAD_LEFT); // Unique ID for this sell request
         SellWalletHistory::create([
+            'sell_id' => $sellId, // Assign the unique sell ID
             'member_id' => $userData->member_id,
             'show_wallet_balance' => $request->input('wallet_balance'),
             'total_sell_wallet_balance' => 0, 
@@ -47,7 +90,7 @@ class BuySellController extends Controller
             'status' => 1, 
         ]);
         return response()->json([
-            'message' => 'Self-sell details submitted successfully',
+            'message' => $sellId . ': Self-sell details submitted successfully',
         ]);
     }
     public function selfSellListData(Request $request)
@@ -56,13 +99,8 @@ class BuySellController extends Controller
         $member_id = ManageReport::where('memberID', $MemberId)->value('member_id');
 
         $query = SellWalletHistory::with('member')
-            ->where('member_id', $member_id)
-            ->latest();
-
-        // AJAX check
-        if (!$request->ajax()) {
-            return view('member.smartwallet.sender');
-        }
+            ->where('member_id', $member_id)->orderByDesc('status')
+            ->orderByDesc('created_at')->orderByDesc('id');
 
         $perPage = $request->length ?? 10;
         $page = intval(($request->start ?? 0) / $perPage) + 1;
@@ -75,6 +113,7 @@ class BuySellController extends Controller
             return [
                 // 'checkbox' => '<input type="checkbox" class="row-checkbox" value="'.$row->id.'">',
                 'DT_RowIndex' => $index + 1,
+                'sell_id' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">'.$row->sell_id.'</span>',
                 'show_wallet_balance' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">
                                 '.number_format($row->show_wallet_balance, 2).'
                             </span>',
@@ -87,6 +126,52 @@ class BuySellController extends Controller
                             </span>',
 
                 'status' => $this->formatStatus($row->status),
+                'actions' => '
+                                <div class="d-flex gap-2 justify-content-center">
+
+                                    <!-- VIEW (only if balance > 0) -->
+                                    '.($row->total_sell_wallet_balance > 0 ? '
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-secondary view-btn"
+                                            data-sell-history-id="'.$row->id.'"
+                                            title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    ' : '').'
+
+                                    <!-- STATUS = 1 -->
+                                    '.($row->status == 1 ? '
+
+                                        <!-- CANCEL -->
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-danger cancelled-self-sell"
+                                            data-sell-history-id="'.$row->id.'"
+                                            title="Close Sell">
+                                            <i class="bi bi-x-circle"></i>
+                                        </button>
+
+                                        <!-- EDIT -->
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-primary edit-btn"
+                                            data-sell-history-id="'.$row->id.'"
+                                            title="Edit Sell">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                    ' : '
+
+                                        <!-- RENEW -->
+                                        <button type="button"
+                                            class="btn btn-sm btn-outline-success renew-btn"
+                                            data-sell-history-id="'.$row->id.'" data-wallet-balance="'.$row->show_wallet_balance.'" data-payment-method="'.$row->payment_method.'" data-mobile-number="'.$row->mobile_number.'"
+                                            title="Renew Sell">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+
+                                    ').'
+
+                                </div>
+                            '
 
             ];
         });
@@ -101,15 +186,449 @@ class BuySellController extends Controller
     private function formatStatus($status)
     {
         $map = [
-            2 => ['Closed','bg-warning'],
+            2 => ['Sell Completed','bg-primary'],
             1 => ['Active','bg-success'],
-            3 => ['Cancelled','bg-danger'],
-            
+            3 => ['Closed Sell','bg-danger'],            
         ];
 
         $s = $map[$status] ?? ['Unknown','bg-dark'];
 
         return '<span class="badge '.$s[1].'">'.$s[0].'</span>';
+    }
+    public function selfSellCancel($id)
+    {
+        $sell = SellWalletHistory::find($id);
+
+        if (!$sell) {
+            return response()->json([
+                'message' => 'Sell request not found'
+            ], 404);
+        }
+
+        if ($sell->status != 1) {
+            return response()->json([
+                'message' => 'Only active sell requests can be cancelled'
+            ], 422);
+        }
+
+        $existRequest = RfbSeller::where('sell_history_id', $sell->id)->where('status', 1)->exists();
+        if ($existRequest) {
+            RfbSeller::where('sell_history_id', $sell->id)
+                ->where('status', 1)
+                ->update(['status' => 4]); // Closed Sell
+        }
+
+        $sell->status = 3; // Cancelled
+        $sell->save();
+
+        return response()->json([
+            'message' => 'Sell details cancelled successfully'
+        ]);
+    }
+    public function selfSellShowData($id)
+    {
+        $sell = SellWalletHistory::with('member')->find($id);
+
+        if (!$sell) {
+            return response()->json([
+                'message' => 'Sell request not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'sell_id' => $sell->sell_id,
+            'show_wallet_balance' => $sell->show_wallet_balance,
+            'payment_method' => $sell->payment_method,
+            'mobile_number' => $sell->mobile_number,
+            'status' => $sell->status,
+            'created_at' => optional($sell->created_at)->format('d M Y h:i A'),
+            'member_name' => $sell->member->name ?? 'Unknown Member',
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+    public function sendRequestForBuy()
+    {    
+        return view('member.smartwallet.sendRequestForBuy');
+    }
+    public function fetchSellerData(Request $request)
+    {
+        $wallet_balance = $request->input('wallet_balance');
+        $memberMemberID = session('member_memberID');
+        $self_member_id = ManageReport::where('memberID', $memberMemberID)->value('member_id');
+        $countryname = MemberDetail::where('memberID', $memberMemberID)
+            ->value('countryname');
+
+        $sellers = SellWalletHistory::whereRaw(
+                '(show_wallet_balance - total_sell_wallet_balance) >= ?',
+                [$wallet_balance]
+            )
+            ->when($request->payment_method, function ($query) use ($request) {
+                $query->where('payment_method', $request->payment_method);
+            })
+            ->where('status', 1)
+            ->where('member_id', '!=', $self_member_id)
+            ->whereHas('memberDetail', function ($q) use ($countryname) {
+                $q->where('countryname', $countryname);
+            })
+            ->with('member', 'memberDetail')
+            ->latest();
+        if (!$request->ajax()) {
+            return view('member.smartwallet.sender');
+        }
+
+        $perPage = $request->length ?? 10;
+        $page = intval(($request->start ?? 0) / $perPage) + 1;
+
+        $paginated = $sellers->paginate($perPage, ['*'], 'page', $page);
+        $records = $paginated->items();
+        $data = collect($records)->map(function ($row,$index) {
+
+            return [
+                'checkbox' => '<input type="checkbox" class="row-checkbox" value="'.$row->member_id.'">',
+                'show_wallet_balance' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">
+                                '.number_format($row->show_wallet_balance-$row->total_sell_wallet_balance, 2).'
+                            </span>',
+                'mobile_number' => $row->mobile_number?$row->mobile_number:'',
+                'payment_method' => $row->payment_method == 1 ? 'UPI Transfer via QR Code' : ($row->payment_method == 2 ? 'UPI Number' : ($row->payment_method == 3 ? 'Bank to Bank Transfer' : ($row->payment_method == 4 ? 'Cash to Bank Transfer' : 'Unknown'))),
+                'name' => "
+                        <div style='font-size:13px;font-weight:700;color:#1a3a6b;line-height:1.3;'>
+                            ".ucwords(strtolower($row->member->name ?? 'Unknown Member'))."
+                        </div>
+
+                        ".(!empty($row->member->memberID) ? "
+                            <div style='font-size:11px;color:#0c447c;margin-top:2px;'>
+                                <span style='background:#e6f1fb;padding:1px 7px;border-radius:12px;'>
+                                    {$row->member->memberID}
+                                </span>
+                            </div>
+                        " : "")."
+                    ",
+                'sell_id' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">'.$row->sell_id.'</span>',
+
+            ];
+        });
+
+        return response()->json([
+            'draw' => (int) $request->draw,
+            'recordsTotal' => $paginated->total(),
+            'recordsFiltered' => $paginated->total(),
+            'data' => $data,
+        ]);
+       
+    }
+    public function sendRequestForBuyStore(Request $request)
+    {
+        $request->validate([
+            'sellers' => 'required|array|min:1',
+            'sellers.*' => 'distinct',
+            'amount' => 'required|numeric|min:1'
+        ]);
+        if ($request->edit_rfb_id) {
+            $rfb = Rfb::find($request->edit_rfb_id);
+
+            // old sellers delete
+            RfbSeller::where('rfb_id', $rfb->id)->delete();
+
+            // update main
+            $rfb->update([
+                'amount' => $request->amount,
+                'no_of_sellers' => count($request->sellers)
+            ]);
+
+            // insert new sellers
+            foreach ($request->sellers as $sellerId) {
+                RfbSeller::create([
+                    'rfb_id' => $rfb->id,
+                    'member_id' => $rfb->member_id,
+                    'seller_member_id' => $sellerId,
+                    'status' => 1
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Request updated successfully'
+            ]);
+        }
+        DB::beginTransaction();
+
+        try {
+
+            $sellerIds = array_unique($request->sellers);
+            $sellerCount = count($sellerIds);
+
+            $session_member_id = ManageReport::where('memberID', session('member_memberID'))
+                ->value('member_id');
+
+            if (!$session_member_id) {
+                return response()->json(['message' => 'Invalid session member'], 400);
+            }
+
+            $count = Rfb::where('member_id', $session_member_id)->count();
+
+            // FIXED unique id
+            $rfbUniqueId = 'RFB-' . $session_member_id . '-' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+
+            // create main request
+            $rfb = Rfb::create([
+                'rfb_id' => $rfbUniqueId,
+                'member_id' => $session_member_id,
+                'amount' => $request->amount,
+                'no_of_sellers' => $sellerCount,
+                'status' => 1
+            ]);
+
+            $data = [];
+
+            foreach ($sellerIds as $sellerId) {
+                $data[] = [
+                    'rfb_id' => $rfb->id, // IMPORTANT: using primary key
+                    'member_id' => $session_member_id,
+                    'sell_history_id' => SellWalletHistory::where('member_id', $sellerId)
+                        ->where('status', 1)
+                        ->whereRaw('(show_wallet_balance - total_sell_wallet_balance) >= ?', [$request->amount])
+                        ->value('id'),
+                    'seller_member_id' => $sellerId,
+                    'status' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ];
+            }
+
+            RfbSeller::insert($data);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Request sent successfully to ' . $sellerCount . ' sellers'
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $e->getMessage() // DEBUG purpose
+            ], 500);
+        }
+    }
+    public function rfbListData(Request $request)
+    {
+        $memberMemberID = session('member_memberID');
+        $member_id = ManageReport::where('memberID', $memberMemberID)->value('member_id');
+
+        $query = Rfb::with('sellers.seller')
+            ->where('member_id', $member_id)
+            ->latest();
+
+        if (!$request->ajax()) {
+            return view('member.smartwallet.sendRequestForBuy');
+        }
+
+        $perPage = $request->length ?? 10;
+        $page = intval(($request->start ?? 0) / $perPage) + 1;
+
+        $paginated = $query->paginate($perPage, ['*'], 'page', $page);
+        $records = $paginated->items();
+
+        $data = collect($records)->map(function ($row,$index) {
+
+            return [
+                'DT_RowIndex' => $index + 1,
+                'rfb_id' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">'.$row->rfb_id.'</span>',
+                'amount' => number_format($row->amount, 2),
+                'created_at' => optional($row->created_at)->format('d M Y h:i A'),
+                'no_of_sellers' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">
+                                '.$row->no_of_sellers.'
+                            </span>',
+                'status' => $this->formatStatusForSentRfb($row->status),
+                'actions' => '
+                            <button type="button" class="btn btn-sm btn-outline-secondary view-btn" title="View" data-rfb-id="'.$row->id.'" >
+                                <i class="bi bi-eye"></i> 
+                            </button><button type="button" class="btn btn-sm btn-outline-secondary edit-btn" title="Edit" data-rfb-id="'.$row->id.'" '.($row->status != 1 ? 'disabled' : '').'>
+                                <i class="bi bi-pencil"></i> 
+                            </button>'
+            ];
+        });
+
+        return response()->json([
+            'draw' => (int) $request->draw,
+            'recordsTotal' => $paginated->total(),
+            'recordsFiltered' => $paginated->total(),
+            'data' => $data,
+        ]);
+    }
+    private function formatStatusForSentRfb($status)
+    {
+        switch ($status) {
+            case 1:
+                return '<span class="badge bg-warning">Request Sent</span>';
+            case 2:
+                return '<span class="badge bg-success">Request Accepted</span>';
+            case 3:
+                return '<span class="badge bg-danger">Closed Request</span>';
+            default:
+                return '<span class="badge bg-secondary">Unknown</span>';
+        }
+    }
+    public function sendRequestForBuyShow(Request $request,$id)
+    {
+        $rfb = Rfb::findOrFail($id);
+        $sellerWithSellId = RfbSeller::where('rfb_id', $rfb->id)->where('status', 1)
+            ->pluck('seller_member_id')
+            ->toArray();
+
+        $wallet_balance = $rfb->amount;
+        $self_member_id = $rfb->member_id; 
+        $countryname = MemberDetail::where('memberID', session('member_memberID'))
+            ->value('countryname');
+
+        $sellers = SellWalletHistory::whereRaw(
+                '(show_wallet_balance - total_sell_wallet_balance) >= ?',
+                [$wallet_balance]
+            )            
+            ->where('status', 1)
+            ->where('member_id', '!=', $self_member_id)
+            ->whereHas('memberDetail', function ($q) use ($countryname) {
+                $q->where('countryname', $countryname);
+            })
+            ->with('member', 'memberDetail')
+            ->latest();
+        
+
+        $perPage = $request->length ?? 10;
+        $page = intval(($request->start ?? 0) / $perPage) + 1;
+
+        $paginated = $sellers->paginate($perPage, ['*'], 'page', $page);
+        $records = $paginated->items();
+        $data = collect($records)->map(function ($row,$index)use ($sellerWithSellId)  {
+
+            return [
+                'checkbox' => '<input type="checkbox" class="row-checkbox" value="'.$row->member_id.'"'.(in_array($row->member_id, $sellerWithSellId) ? 'checked' : '').'>',
+                'show_wallet_balance' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">
+                                '.number_format($row->show_wallet_balance-$row->total_sell_wallet_balance, 2).'
+                            </span>',
+                'mobile_number' => $row->mobile_number?$row->mobile_number:'',
+                'payment_method' => $row->payment_method == 1 ? 'UPI Transfer via QR Code' : ($row->payment_method == 2 ? 'UPI Number' : ($row->payment_method == 3 ? 'Bank to Bank Transfer' : ($row->payment_method == 4 ? 'Cash to Bank Transfer' : 'Unknown'))),
+                'name' => "
+                        <div style='font-size:13px;font-weight:700;color:#1a3a6b;line-height:1.3;'>
+                            ".ucwords(strtolower($row->member->name ?? 'Unknown Member'))."
+                        </div>
+
+                        ".(!empty($row->member->memberID) ? "
+                            <div style='font-size:11px;color:#0c447c;margin-top:2px;'>
+                                <span style='background:#e6f1fb;padding:1px 7px;border-radius:12px;'>
+                                    {$row->member->memberID}
+                                </span>
+                            </div>
+                        " : "")."
+                    ",
+                'sell_id' => '<span class="badge" style="background:#eeedfe;color:#3c3489;">'.$row->sell_id.'</span>',
+
+            ];
+        });
+
+        return response()->json([
+            'draw' => (int) $request->draw,
+            'recordsTotal' => $paginated->total(),
+            'recordsFiltered' => $paginated->total(),
+            'data' => $data,
+            'amount' => $rfb->amount,
+        ]);
+       
+    }
+    
+
+
+
+
+
+
+
+
+
+    public function acceptRequest($rfbId)
+    {
+        DB::beginTransaction();
+
+        try {
+            $sellerId = auth()->id();
+
+            // lock main request
+            $rfb = DB::table('rfbs')
+                ->where('id', $rfbId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$rfb) {
+                return response()->json(['message' => 'Request not found'], 404);
+            }
+
+            if ($rfb->status != 1) {
+                return response()->json(['message' => 'Request already processed'], 400);
+            }
+
+            // check seller row
+            $sellerRow = DB::table('rfb_sellers')
+                ->where('rfb_id', $rfbId)
+                ->where('seller_member_id', $sellerId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$sellerRow) {
+                return response()->json(['message' => 'Unauthorized seller'], 403);
+            }
+
+            if ($sellerRow->status != 1) {
+                return response()->json(['message' => 'Already responded'], 400);
+            }
+
+            // accept this seller
+            DB::table('rfb_sellers')
+                ->where('id', $sellerRow->id)
+                ->update([
+                    'status' => 2,
+                    'updated_at' => now()
+                ]);
+
+            // close others
+            DB::table('rfb_sellers')
+                ->where('rfb_id', $rfbId)
+                ->where('id', '!=', $sellerRow->id)
+                ->update([
+                    'status' => 3,
+                    'updated_at' => now()
+                ]);
+
+            // update main request
+            DB::table('rfbs')
+                ->where('id', $rfbId)
+                ->update([
+                    'status' => 2, // accepted
+                    'updated_at' => now()
+                ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Request accepted successfully'
+            ]);
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'Something went wrong'
+            ], 500);
+        }
     }
     
 }
